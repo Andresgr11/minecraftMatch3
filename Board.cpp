@@ -78,7 +78,7 @@ bool Board::match()
 {
 	bool matching = false;
 	totalMatches = 0;
-
+	
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
 		for (int j = 0; j < BOARD_COLS - 2; j++)
@@ -86,7 +86,6 @@ bool Board::match()
 			if (board[i][j].getGemKind() == board[i][j + 1].getGemKind() && board[i][j].getGemKind() == board[i][j + 2].getGemKind())
 			{
 				cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
-				totalMatches++;
 				board[i][j].getSprite()->setColor(Color::Black);
 				board[i][j + 1].getSprite()->setColor(Color::Black);
 				board[i][j + 2].getSprite()->setColor(Color::Black);
@@ -95,11 +94,14 @@ bool Board::match()
 			if (board[j][i].getGemKind() == board[j + 1][i].getGemKind() && board[j][i].getGemKind() == board[j + 2][i].getGemKind())
 			{
 				cout << "Match encontrado en (" << j << ", " << i << "), (" << j + 1 << ", " << i << "), (" << j + 2 << ", " << i << ")" << endl;
-				totalMatches++;
 				board[j][i].getSprite()->setColor(Color::Black);
 				board[j + 1][i].getSprite()->setColor(Color::Black);
 				board[j + 2][i].getSprite()->setColor(Color::Black);
 				matching = true;
+			}
+			if (board[j][i].getSprite()->getColor() == Color::Black)
+			{
+				totalMatches++;
 			}
 		}
 	}
