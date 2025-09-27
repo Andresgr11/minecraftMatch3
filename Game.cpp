@@ -136,8 +136,8 @@ void Game::gamePlay()
 										movements--;
 										do
 										{
-											gameBoard.updateBoard();
-										} while (gameBoard.updateBoard());
+											gameBoard.updateBoard();										
+										} while (gameBoard.updateBoard());	
 									}
 									click = 0;
 								}
@@ -231,6 +231,7 @@ void Game::endGame()
 					if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton Salir presionado" << endl;
+						gameOver = false;
 						window->close();
 						break;
 					}
