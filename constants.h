@@ -4,7 +4,7 @@
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 const std::string WINDOW_TITLE = "Minercaft Match-3";
-constexpr int FPS = 60;
+constexpr int FPS = 165;
 constexpr int BOARD_ROWS = 8;
 constexpr int BOARD_COLS = 8;
 constexpr int GEM_TYPE_QUANTITY = 5;

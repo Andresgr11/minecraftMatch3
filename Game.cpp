@@ -132,7 +132,7 @@ void Game::gamePlay()
 
 									if (gameBoard.match())
 									{
-										points += gameBoard.totalMatches * 100;
+										points += gameBoard.totalMatches * 10;
 										movements--;
 										do
 										{
