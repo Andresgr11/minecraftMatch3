@@ -49,6 +49,7 @@ bool Board::swapping(int row1, int col1, int row2, int col2)
 		swap(board[row1][col1], board[row2][col2]);
 		cout << "Gemas intercambiadas en: (" << row1 << ", " << col1 << ") y (" << row2 << ", " << col2 << ")." << endl;
 		board[row1][col1].getSprite()->setColor(Color::White);
+		board[row2][col2].getSprite()->setColor(Color::White);
 		board[row1][col1].setLocation(BOARD_X_START + col1 * CELL_SIDE_SIZE, BOARD_Y_START + row1 * CELL_SIDE_SIZE);
 		board[row2][col2].setLocation(BOARD_X_START + col2 * CELL_SIDE_SIZE, BOARD_Y_START + row2 * CELL_SIDE_SIZE);
 		swapping = true;

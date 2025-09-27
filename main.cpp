@@ -4,5 +4,5 @@
 int main()
 {
 	Game Minecraft;
-	return 0;    
+	return 0;
 }

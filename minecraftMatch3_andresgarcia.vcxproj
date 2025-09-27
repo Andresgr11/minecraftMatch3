@@ -24,6 +24,7 @@
     <ProjectGuid>{89ac131d-4939-4035-8024-b66141b69306}</ProjectGuid>
     <RootNamespace>minecraftMatch3andresgarcia</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>minecraftMatch3</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
