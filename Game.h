@@ -9,9 +9,11 @@ private:
 	bool menu;
 	bool playing;
 	bool gameOver;
+	String missionText;
 	void gameMenu();
 	void gamePlay();
 	void endGame();
+	void missions();
 public:
 	Game();
 	int click;

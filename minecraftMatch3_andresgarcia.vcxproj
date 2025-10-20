@@ -136,6 +136,7 @@
     <ClCompile Include="bombGem.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gem.cpp" />
+    <ClCompile Include="iceBlock.cpp" />
     <ClCompile Include="lineGem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="normalGem.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Gem.h" />
+    <ClInclude Include="iceBlock.h" />
     <ClInclude Include="lineGem.h" />
     <ClInclude Include="normalGem.h" />
   </ItemGroup>

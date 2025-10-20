@@ -20,4 +20,5 @@ public:
 	virtual Sprite* getSprite();
 	virtual int getGemKind() const;
 	virtual void setGemKind(int gKind);
+	virtual void functions();
 };

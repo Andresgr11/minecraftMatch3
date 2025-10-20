@@ -66,6 +66,7 @@ void Game::gamePlay()
 
 		String pointsText = "Puntos: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
+		String objetive = "Objetivo: " + missionText;
 
 		Text score(font, pointsText);
 		score.setCharacterSize(30);
@@ -81,6 +82,11 @@ void Game::gamePlay()
 		title.setCharacterSize(40);
 		title.setFillColor(Color::White);
 		title.setPosition(Vector2f{ 40, 30 });
+
+		Text objetiveText(font, objetive);
+		objetiveText.setCharacterSize(20);
+		objetiveText.setFillColor(Color::White);
+		objetiveText.setPosition(Vector2f{ 50, 100 });
 
 		RectangleShape exitButton(Vector2f(200, 50));
 		exitButton.setFillColor(Color::Yellow);
@@ -258,6 +264,24 @@ void Game::endGame()
 		}
 		window->display();
 	}
+}
+
+void Game::missions()
+{
+	srand(time(0));
+	int missionType = rand() % 3;
+	switch (missionType)
+	{
+	case 0:
+		missionText = "Alcanzar 1000 puntos en 20 movimientos.";
+	case 1:
+		cout << "Mision: Alcanzar 1500 puntos en 25 movimientos." << endl;
+		break;
+	case 2:
+		cout << "Mision: Alcanzar 2000 puntos en 30 movimientos." << endl;
+		break;
+	}
+
 }
 
 Game::Game()
