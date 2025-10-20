@@ -82,6 +82,15 @@ void Game::gamePlay()
 		title.setFillColor(Color::White);
 		title.setPosition(Vector2f{ 40, 30 });
 
+		RectangleShape exitButton(Vector2f(200, 50));
+		exitButton.setFillColor(Color::Yellow);
+		exitButton.setPosition(Vector2f{ 50, 400 });
+
+		Text exitText(font, "Salir");
+		exitText.setCharacterSize(30);
+		exitText.setFillColor(Color::White);
+		exitText.setPosition(Vector2f{ 115, 405 });
+
 		Texture backgroundTexture;
 		backgroundTexture.loadFromFile("assets\\bg.png");
 		Sprite backgroundSprite(backgroundTexture);
@@ -91,6 +100,8 @@ void Game::gamePlay()
 		window->draw(title);
 		window->draw(score);
 		window->draw(moves);
+		window->draw(exitButton);
+		window->draw(exitText);
 
 		for (int i = 0; i < BOARD_ROWS; i++)
 		{
@@ -149,6 +160,13 @@ void Game::gamePlay()
 								}
 							}
 						}
+					}
+					if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
+					{
+						cout << "Boton Salir presionado" << endl;
+						playing = false;
+						window->close();
+						break;
 					}
 				}
 			}
