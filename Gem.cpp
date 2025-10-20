@@ -1,7 +1,4 @@
 #include "Gem.h"
-#include "normalGem.h"
-#include "lineGem.h"
-#include "bombGem.h"
 
 Gem::Gem()
 {
@@ -33,16 +30,4 @@ int Gem::getGemKind() const
 void Gem::setGemKind(int gKind)
 {
 	kind = gKind;
-}
-
-void normalGem::functions()
-{
-}
-
-void lineGem::functions()
-{
-}
-
-void bombGem::functions()
-{
 }

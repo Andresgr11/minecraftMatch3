@@ -15,10 +15,10 @@ private:
 	int kind;
 public:
 	Gem();
-	virtual void setGem(Texture& gtexture, int gKind);
-	virtual void setLocation(float x, float y);
-	virtual Sprite* getSprite();
-	virtual int getGemKind() const;
-	virtual void setGemKind(int gKind);
-	virtual void functions();
+	void setGem(Texture& gtexture, int gKind);
+	void setLocation(float x, float y);
+	Sprite* getSprite();
+	int getGemKind() const;
+	void setGemKind(int gKind);
+	void functions();
 };

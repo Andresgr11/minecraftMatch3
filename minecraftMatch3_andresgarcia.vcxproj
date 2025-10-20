@@ -133,23 +133,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="bombGem.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gem.cpp" />
     <ClCompile Include="iceBlock.cpp" />
-    <ClCompile Include="lineGem.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="normalGem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="bombGem.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Gem.h" />
     <ClInclude Include="iceBlock.h" />
-    <ClInclude Include="lineGem.h" />
-    <ClInclude Include="normalGem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
