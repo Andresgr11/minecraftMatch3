@@ -16,6 +16,7 @@ private:
 	void missions();
 public:
 	Game();
+	~Game() { delete window; }
 	int click;
 	int points;
 	int movements;

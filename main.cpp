@@ -4,5 +4,6 @@
 int main()
 {
 	Game Minecraft;
+	Minecraft.~Game();
 	return 0;
 }
