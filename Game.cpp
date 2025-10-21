@@ -150,14 +150,14 @@ void Game::gamePlay()
 								{
 									gameBoard.swapping(gameBoard.selectedGemRow, gameBoard.selectedGemCol, i, j);
 
-									if (gameBoard.match())
+									while (gameBoard.match())
 									{
 										points += gameBoard.totalMatches * 10;
 										movements--;
 										do
 										{
-											gameBoard.updateBoard();										
-										} while (gameBoard.updateBoard());	
+											gameBoard.updateBoard();
+										} while (gameBoard.updateBoard());									
 									}
 									click = 0;
 								}
