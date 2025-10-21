@@ -1,14 +1,14 @@
 #include "Gem.h"
 
 Gem::Gem()
-{
+{  
 	gemSprite = nullptr;
 	kind = -1;
 }
 
 void Gem::setGem(Texture& gtexture, int gKind)
 {
-	gemSprite = new Sprite(gtexture);
+	gemSprite = new Sprite (gtexture);
 	kind = gKind;
 }
 

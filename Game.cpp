@@ -29,7 +29,7 @@ void Game::gameMenu()
 		window->draw(title);
 		window->draw(startButton);
 		window->draw(startText);
-			
+
 		Vector2i pos = Mouse::getPosition(*window);
 
 		while (const optional event = window->pollEvent())
@@ -40,7 +40,7 @@ void Game::gameMenu()
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
 				if (mouseButtonPressed->button == Mouse::Button::Left)
-				{					
+				{
 					if (startButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton Iniciar presionado" << endl;
@@ -48,7 +48,7 @@ void Game::gameMenu()
 						menu = false;
 						break;
 					}
-					
+
 				}
 			}
 		}
@@ -57,9 +57,9 @@ void Game::gameMenu()
 }
 
 void Game::gamePlay()
-{		
+{
 	gameBoard.initializeBoard();
-	
+
 	while (window->isOpen() && playing)
 	{
 		Font font("assets\\Minecraft.otf");
@@ -110,7 +110,7 @@ void Game::gamePlay()
 		window->draw(exitButton);
 		window->draw(exitText);
 
-		
+
 
 		for (int i = 0; i < BOARD_ROWS; i++)
 		{
@@ -119,7 +119,7 @@ void Game::gamePlay()
 				if (gameBoard.getGem(i, j) != nullptr)
 				{
 					window->draw(*gameBoard.getGem(i, j));
-				}
+				}			
 			}
 		}
 
@@ -129,6 +129,7 @@ void Game::gamePlay()
 		{
 			if (event->is<Event::Closed>())
 				window->close();
+
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
 				if (mouseButtonPressed->button == Mouse::Button::Left)
