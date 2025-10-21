@@ -161,3 +161,9 @@ bool Board::updateBoard()
 	}	
 	return gravity;
 }
+
+bool Board::isAnimating()
+{
+	bool anim = false;
+	return anim;
+}

@@ -20,5 +20,5 @@ public:
 	Sprite* getSprite();
 	int getGemKind() const;
 	void setGemKind(int gKind);
-	void functions();
+	bool animating(float x, float y);
 };

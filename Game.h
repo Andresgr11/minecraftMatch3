@@ -13,11 +13,12 @@ private:
 	void gameMenu();
 	void gamePlay();
 	void endGame();
-	void missions();
+	String missions();
 public:
 	Game();
 	~Game() { delete window; }
 	int click;
 	int points;
 	int movements;
+	int progressMission;
 };

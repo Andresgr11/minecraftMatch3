@@ -31,3 +31,13 @@ void Gem::setGemKind(int gKind)
 {
 	kind = gKind;
 }
+
+bool Gem::animating(float x, float y)
+{
+	bool gemAnim = false;
+	
+	float dx = gemSprite->getPosition().x - x;
+	float dy = gemSprite->getPosition().y - y;
+
+	return gemAnim;
+}

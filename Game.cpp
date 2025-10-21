@@ -66,7 +66,7 @@ void Game::gamePlay()
 
 		String pointsText = "Puntos: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
-		String objetive = "Objetivo: " + missionText;
+		String objetive = "Objetivo: " + missions();
 
 		Text score(font, pointsText);
 		score.setCharacterSize(30);
@@ -106,6 +106,7 @@ void Game::gamePlay()
 		window->draw(title);
 		window->draw(score);
 		window->draw(moves);
+		window->draw(objetiveText);
 		window->draw(exitButton);
 		window->draw(exitText);
 
@@ -231,7 +232,7 @@ void Game::endGame()
 		window->draw(restartText);
 		window->draw(exitButton);
 		window->draw(exitText);
-		
+
 		while (const optional event = window->pollEvent())
 		{
 			if (event->is<Event::Closed>())
@@ -266,22 +267,23 @@ void Game::endGame()
 	}
 }
 
-void Game::missions()
+String Game::missions()
 {
 	srand(time(0));
 	int missionType = rand() % 3;
 	switch (missionType)
 	{
 	case 0:
-		missionText = "Alcanzar 1000 puntos en 20 movimientos.";
+		missionText = "Elimina 15 diamantes.";
+		break;
 	case 1:
-		cout << "Mision: Alcanzar 1500 puntos en 25 movimientos." << endl;
+		missionText = "Rompe 2 bloques de hielo.";
 		break;
 	case 2:
-		cout << "Mision: Alcanzar 2000 puntos en 30 movimientos." << endl;
+		missionText = "Haz una combinación de 5 gemas.";
 		break;
 	}
-
+	return missionText;
 }
 
 Game::Game()

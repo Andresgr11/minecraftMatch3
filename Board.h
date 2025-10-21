@@ -17,5 +17,6 @@ public:
 	bool swapping(int row1, int col1, int row2, int col2);
 	bool match();
 	void initializeBoard();
-	bool updateBoard();	
+	bool updateBoard();
+	bool isAnimating();
 };
