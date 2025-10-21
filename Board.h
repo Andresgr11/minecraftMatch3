@@ -1,11 +1,12 @@
 #pragma once
 #include "Gem.h"
+#include "iceBlock.h"
 
 class Board
 {
 private:
 	Gem board[BOARD_ROWS][BOARD_COLS];
-	Texture gemTextures[GEM_TYPE_QUANTITY];	
+	Texture gemTextures[GEM_TYPE_QUANTITY];
 public:
 	int selectedGemRow;
 	int selectedGemCol;

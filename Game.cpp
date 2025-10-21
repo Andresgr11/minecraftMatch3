@@ -66,7 +66,7 @@ void Game::gamePlay()
 
 		String pointsText = "Puntos: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
-		String objetive = "Objetivo: " + missions();
+		String objetive = "Objetivo: ";
 
 		Text score(font, pointsText);
 		score.setCharacterSize(30);
@@ -109,6 +109,8 @@ void Game::gamePlay()
 		window->draw(objetiveText);
 		window->draw(exitButton);
 		window->draw(exitText);
+
+		
 
 		for (int i = 0; i < BOARD_ROWS; i++)
 		{
@@ -265,25 +267,6 @@ void Game::endGame()
 		}
 		window->display();
 	}
-}
-
-String Game::missions()
-{
-	srand(time(0));
-	int missionType = rand() % 3;
-	switch (missionType)
-	{
-	case 0:
-		missionText = "Elimina 15 diamantes.";
-		break;
-	case 1:
-		missionText = "Rompe 2 bloques de hielo.";
-		break;
-	case 2:
-		missionText = "Haz una combinación de 5 gemas.";
-		break;
-	}
-	return missionText;
 }
 
 Game::Game()

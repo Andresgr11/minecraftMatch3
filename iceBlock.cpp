@@ -2,14 +2,10 @@
 
 iceBlock::iceBlock()
 {
-	iceSprite = nullptr;
+	iceTexture.loadFromFile("assets\\ice.png");
+	iceSprite = new Sprite(iceTexture);
 	isFrozen = true;
 	iceCounter = 2;
-}
-
-void iceBlock::setIceBlock(Texture& itexture)
-{
-	iceSprite = new Sprite(itexture);
 }
 
 void iceBlock::setLocation(float x, float y)

@@ -3,7 +3,7 @@
 Gem::Gem()
 {
 	gemSprite = nullptr;
-	kind = 0;
+	kind = -1;
 }
 
 void Gem::setGem(Texture& gtexture, int gKind)

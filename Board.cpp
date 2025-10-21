@@ -1,5 +1,6 @@
 #include "Board.h"
 #include "Game.h"
+#include "iceBlock.h"
 
 Board::Board()
 {
@@ -20,6 +21,10 @@ Board::Board()
 			board[i][j].setLocation(BOARD_X_START + j * CELL_SIDE_SIZE, BOARD_Y_START + i * CELL_SIDE_SIZE);
 		}
 	}
+
+	selectedGemRow = -1;
+	selectedGemCol = -1;
+	totalMatches = 0;
 }
 
 Sprite* Board::getGem(int row, int col)

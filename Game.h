@@ -1,5 +1,6 @@
 #pragma once
 #include "Board.h"
+#include "iceBlock.h"
 
 class Game
 {
@@ -13,7 +14,7 @@ private:
 	void gameMenu();
 	void gamePlay();
 	void endGame();
-	String missions();
+	Board iceBlocks;
 public:
 	Game();
 	~Game() { delete window; }

@@ -11,12 +11,12 @@ using namespace std;
 class iceBlock
 {
 private:
+	Texture iceTexture;
 	Sprite* iceSprite;
 	bool isFrozen;
 public:
 	iceBlock();
 	int iceCounter;
-	void setIceBlock(Texture& itexture);
 	void setLocation(float x, float y);
 	Sprite* getSprite();
 	bool getIsFrozen() const;
