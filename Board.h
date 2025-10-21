@@ -11,8 +11,10 @@ public:
 	int selectedGemRow;
 	int selectedGemCol;
 	int totalMatches;
+	int diamondsCleared;
 	Board();
 	Sprite* getGem(int row, int col);
+	int getGemKind(int row, int col);
 	void setLocation(int row, int col, float x, float y);
 	void selectGem(int row, int col);
 	bool swapping(int row1, int col1, int row2, int col2);

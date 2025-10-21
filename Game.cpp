@@ -60,13 +60,18 @@ void Game::gamePlay()
 {
 	gameBoard.initializeBoard();
 
+	missions();
+
 	while (window->isOpen() && playing)
 	{
 		Font font("assets\\Minecraft.otf");
 
+		missionProgress();
+
 		String pointsText = "Puntos: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
-		String objetive = "Objetivo: ";
+		String objetive = "Objetivo: " + missionText;
+		String progress = "Progreso: " + progressText;
 
 		Text score(font, pointsText);
 		score.setCharacterSize(30);
@@ -88,6 +93,11 @@ void Game::gamePlay()
 		objetiveText.setFillColor(Color::White);
 		objetiveText.setPosition(Vector2f{ 50, 100 });
 
+		Text progressText(font, progress);
+		progressText.setCharacterSize(20);
+		progressText.setFillColor(Color::White);
+		progressText.setPosition(Vector2f{ 50, 130 });
+
 		RectangleShape exitButton(Vector2f(200, 50));
 		exitButton.setFillColor(Color::Yellow);
 		exitButton.setPosition(Vector2f{ 50, 400 });
@@ -107,10 +117,9 @@ void Game::gamePlay()
 		window->draw(score);
 		window->draw(moves);
 		window->draw(objetiveText);
+		window->draw(progressText);
 		window->draw(exitButton);
 		window->draw(exitText);
-
-
 
 		for (int i = 0; i < BOARD_ROWS; i++)
 		{
@@ -154,11 +163,13 @@ void Game::gamePlay()
 									{
 										points += gameBoard.totalMatches * 10;
 										movements--;
+										missionProgress();
 										do
 										{
 											gameBoard.updateBoard();
 										} while (gameBoard.updateBoard());
 									}
+									
 									click = 0;
 								}
 								if (movements == 0)
@@ -197,6 +208,9 @@ void Game::endGame()
 
 		String finalPointsText = "Puntuacion: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
+		String objetive = "Objetivo: " + missionText;
+		String progress = "Progreso: " + progressText;
+		String finalProgress = finalProgressText;
 
 		Text finalScore(font, finalPointsText);
 		finalScore.setCharacterSize(30);
@@ -207,6 +221,21 @@ void Game::endGame()
 		moves.setCharacterSize(30);
 		moves.setFillColor(Color::White);
 		moves.setPosition(Vector2f{ 500, 60 });
+
+		Text objetiveText(font, objetive);
+		objetiveText.setCharacterSize(20);
+		objetiveText.setFillColor(Color::White);
+		objetiveText.setPosition(Vector2f{ 50, 100 });
+
+		Text progressText(font, progress);
+		progressText.setCharacterSize(20);
+		progressText.setFillColor(Color::White);
+		progressText.setPosition(Vector2f{ 50, 130 });
+
+		Text finalProgressMission(font, finalProgress);
+		finalProgressMission.setCharacterSize(20);
+		finalProgressMission.setFillColor(Color::White);
+		finalProgressMission.setPosition(Vector2f{ 50, 160 });
 
 		RectangleShape restartButton(Vector2f(200, 50));
 		restartButton.setFillColor(Color::Blue);
@@ -230,6 +259,9 @@ void Game::endGame()
 		window->draw(gameOverText);
 		window->draw(finalScore);
 		window->draw(moves);
+		window->draw(objetiveText);
+		window->draw(progressText);
+		window->draw(finalProgressMission);
 		window->draw(restartButton);
 		window->draw(restartText);
 		window->draw(exitButton);
@@ -251,6 +283,7 @@ void Game::endGame()
 						cout << "Boton Reiniciar presionado" << endl;
 						points = 0;
 						movements = 20;
+						gameBoard.diamondsCleared = 0;
 						playing = true;
 						gameOver = false;
 						break;
@@ -269,6 +302,59 @@ void Game::endGame()
 	}
 }
 
+void Game::missions()
+{
+	srand(time(0));
+	int random = rand() % 3;
+	missionType = random;
+
+	if (missionType == 0)
+	{
+		missionText = "Elimina 15 diamantes.";
+	}
+	else if (missionType == 1)
+	{
+		missionText = "Romper 2 bloques de hielo.";
+	}
+	else if (missionType == 2)
+	{
+		missionText = "Obtenga 1000 puntos.";
+	}
+}
+
+void Game::missionProgress()
+{
+	if (missionType == 0)
+	{		
+		progressText = to_string(gameBoard.diamondsCleared) + "/15";
+
+		if (gameBoard.diamondsCleared >= 15)
+		{
+			finalProgressText = "Objetivo cumplido.";
+		}
+		else
+		{
+			finalProgressText = "Objetivo no cumplido.";
+		}	
+	}
+	else if (missionType == 1)
+	{
+		progressText = to_string(iceBlocks.totalMatches) + "/2";
+	}
+	else if (missionType == 2)
+	{
+		progressText = to_string(points) + "/1000";
+		if (points >= 1000)
+		{
+			finalProgressText = "Objetivo cumplido.";
+		}
+		else
+		{
+			finalProgressText = "Objetivo no cumplido.";
+		}
+	}
+}
+
 Game::Game()
 {
 	playing = false;
@@ -279,6 +365,7 @@ Game::Game()
 
 	click = 0, points = 0;
 	movements = 20;
+	missionType = 0;
 	int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
 
 	gameMenu();

@@ -10,16 +10,20 @@ private:
 	bool menu;
 	bool playing;
 	bool gameOver;
-	String missionText;
 	void gameMenu();
 	void gamePlay();
 	void endGame();
+	void missions();
+	void missionProgress();
 	Board iceBlocks;
+	String missionText;
+	String progressText;
+	String finalProgressText;
 public:
 	Game();
 	~Game() { delete window; }
 	int click;
 	int points;
 	int movements;
-	int progressMission;
+	int missionType;
 };
