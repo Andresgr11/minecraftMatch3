@@ -129,7 +129,6 @@ void Game::gamePlay()
 		{
 			if (event->is<Event::Closed>())
 				window->close();
-
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
 				if (mouseButtonPressed->button == Mouse::Button::Left)
@@ -141,10 +140,10 @@ void Game::gamePlay()
 							if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
 							{
 								click++;
-								cout << "Click count: " << click << endl;								
+								cout << "Click count: " << click << endl;
 								if (click == 1)
 								{
-									gameBoard.selectGem(i, j);		
+									gameBoard.selectGem(i, j);
 								}
 								if (click == 2)
 								{
@@ -157,7 +156,7 @@ void Game::gamePlay()
 										do
 										{
 											gameBoard.updateBoard();
-										} while (gameBoard.updateBoard());									
+										} while (gameBoard.updateBoard());
 									}
 									click = 0;
 								}

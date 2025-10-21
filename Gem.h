@@ -15,6 +15,7 @@ private:
 	int kind;
 public:
 	Gem();
+	enum class state { idle, moving };
 	void setGem(Texture& gtexture, int gKind);
 	virtual void setLocation(float x, float y);
 	virtual Sprite* getSprite();

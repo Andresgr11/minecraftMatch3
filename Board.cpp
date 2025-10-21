@@ -57,6 +57,7 @@ bool Board::swapping(int row1, int col1, int row2, int col2)
 		board[row2][col2].getSprite()->setColor(Color::White);
 		board[row1][col1].setLocation(BOARD_X_START + col1 * CELL_SIDE_SIZE, BOARD_Y_START + row1 * CELL_SIDE_SIZE);
 		board[row2][col2].setLocation(BOARD_X_START + col2 * CELL_SIDE_SIZE, BOARD_Y_START + row2 * CELL_SIDE_SIZE);
+
 		swapping = true;
 		
 	}
@@ -128,6 +129,7 @@ void Board::initializeBoard()
 					int random = rand() % GEM_TYPE_QUANTITY;
 					board[i][j].setGem(gemTextures[random], random);
 					board[i][j].setLocation(BOARD_X_START + j * CELL_SIDE_SIZE, BOARD_Y_START + i * CELL_SIDE_SIZE);
+					
 				}
 			}
 		}
