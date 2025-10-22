@@ -4,6 +4,7 @@ Gem::Gem()
 {  
 	gemSprite = nullptr;
 	kind = -1;
+	markedForMatch = false;
 }
 
 void Gem::setGem(Texture& gtexture, int gKind)
@@ -30,6 +31,21 @@ int Gem::getGemKind() const
 void Gem::setGemKind(int gKind)
 {
 	kind = gKind;
+}
+
+void Gem::mark()
+{
+	markedForMatch = true;
+}
+
+void Gem::unmark()
+{
+	markedForMatch = false;
+}
+
+bool Gem::isMarked() const
+{
+	return markedForMatch;
 }
 
 bool Gem::animating(float x, float y)

@@ -5,6 +5,7 @@ iceBlock::iceBlock()
 	iceSprite = nullptr;
 	isFrozen = false;
 	iceCounter = 0;
+	markedForHit = false;
 }
 
 void iceBlock::setLocation(float x, float y)
@@ -34,6 +35,21 @@ void iceBlock::setIsFrozen(bool frozen)
 		iceSprite = nullptr;
 		iceCounter = 0;
 	}
+}
+
+void iceBlock::markIce()
+{
+	markedForHit = true;
+}
+
+void iceBlock::unmarkIce()
+{
+	markedForHit = false;
+}
+
+bool iceBlock::isMarkedIce() const
+{
+	return markedForHit;
 }
 
 void iceBlock::setBlock(Texture& gtexture, int health)

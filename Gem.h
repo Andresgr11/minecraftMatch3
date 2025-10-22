@@ -15,6 +15,7 @@ class Gem
 private:
 	Sprite* gemSprite;
 	int kind;
+	bool markedForMatch;
 public:
 	Gem();
 	enum class state { idle, moving };
@@ -23,5 +24,8 @@ public:
 	virtual Sprite* getSprite();
 	virtual int getGemKind() const;
 	virtual void setGemKind(int gKind);
+	virtual void mark();
+	virtual void unmark();
+	virtual bool isMarked() const;
 	virtual bool animating(float x, float y);
 };

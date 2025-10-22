@@ -13,6 +13,7 @@ class iceBlock
 private:
 	Sprite* iceSprite;
 	bool isFrozen;
+	bool markedForHit;
 public:
 	iceBlock();
 	int iceCounter;
@@ -20,6 +21,9 @@ public:
 	Sprite* getSprite();
 	bool getIsFrozen() const;
 	void setIsFrozen(bool frozen);
+	void markIce();
+	void unmarkIce();
+	bool isMarkedIce() const;
 	void setBlock(Texture& gtexture, int health = 2);
 	bool hit();
 };

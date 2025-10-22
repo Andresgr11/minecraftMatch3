@@ -15,6 +15,7 @@ public:
 	int totalMatches;
 	int diamondsCleared;
 	int iceBlocksBroken;
+	int hitCounter;
 	Board();
 	Sprite* getGem(int row, int col);
 	Sprite* getIceBlock(int row, int col);
@@ -24,6 +25,8 @@ public:
 	void selectGem(int row, int col);
 	bool swapping(int row1, int col1, int row2, int col2);
 	bool match();
+	bool hitIceAndGems();
+	bool removeGems();
 	void initializeBoard();
 	bool updateBoard();
 	bool isAnimating();

@@ -44,6 +44,7 @@ Board::Board()
 	totalMatches = 0;
 	diamondsCleared = 0;
 	iceBlocksBroken = 0;
+	hitCounter = 0;
 }
 
 Sprite* Board::getGem(int row, int col)
@@ -124,42 +125,135 @@ bool Board::match()
 	bool matching = false;
 
 	totalMatches = 0;
+	hitCounter = 0;
 
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
-		for (int j = 0; j < BOARD_COLS - 2; j++)
+		for (int j = 0; j < BOARD_COLS; j++)
 		{
-			if (board[i][j].getGemKind() == board[i][j + 1].getGemKind() && board[i][j].getGemKind() == board[i][j + 2].getGemKind())
+			if (j < BOARD_COLS - 2)
 			{
-				cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
-				board[i][j].getSprite()->setColor(Color::Transparent);
-				board[i][j + 1].getSprite()->setColor(Color::Transparent);
-				board[i][j + 2].getSprite()->setColor(Color::Transparent);
-				matching = true;
-				if (board[i][j].getGemKind() == 0)
+				if ((board[i][j].getGemKind() == board[i][j + 1].getGemKind() && board[i][j].getGemKind() == board[i][j + 2].getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
 				{
-					diamondsCleared++;
+					cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
+					board[i][j].mark();
+					board[i][j + 1].mark();
+					board[i][j + 2].mark();
+					matching = true;
+					if (board[i][j].getGemKind() == 0)
+					{
+						diamondsCleared++;
+					}
 				}
 			}
-			if (board[j][i].getGemKind() == board[j + 1][i].getGemKind() && board[j][i].getGemKind() == board[j + 2][i].getGemKind())
+			
+			if (i < BOARD_ROWS - 2)
 			{
-				cout << "Match encontrado en (" << j << ", " << i << "), (" << j + 1 << ", " << i << "), (" << j + 2 << ", " << i << ")" << endl;
-				board[j][i].getSprite()->setColor(Color::Transparent);
-				board[j + 1][i].getSprite()->setColor(Color::Transparent);
-				board[j + 2][i].getSprite()->setColor(Color::Transparent);
-				matching = true;
-				if (board[j][i].getGemKind() == 0)
+				if ((board[i][j].getGemKind() == board[i + 1][j].getGemKind() && board[i][j].getGemKind() == board[i + 2][j].getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
 				{
-					diamondsCleared++;
-				}
+					cout << "Match encontrado en (" << j << ", " << i << "), (" << j + 1 << ", " << i << "), (" << j + 2 << ", " << i << ")" << endl;
+					board[i][j].mark();
+					board[i + 1][j].mark();
+					board[i + 2][j].mark();
+					matching = true;
+					if (board[i][j].getGemKind() == 0)
+					{
+						diamondsCleared++;
+					}
+				}				
 			}
-			if (board[i][j].getSprite()->getColor() == Color::Transparent)
+			if (board[i][j].isMarked())
 			{
 				totalMatches++;
-			}		
+			}
+		}		
+	}
+
+	if (!matching)
+	{
+		return matching;
+	}
+	removeGems();
+
+	return matching;
+}
+
+bool Board::hitIceAndGems()
+{
+	bool hitting = false;
+
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			if (board[i][j].isMarked() && !iceBlockBoard[i][j].getIsFrozen())
+			{
+				if (i > 0 && iceBlockBoard[i - 1][j].getIsFrozen())
+				{
+					iceBlockBoard[i - 1][j].markIce();
+				}
+				if (i < BOARD_ROWS - 1 && iceBlockBoard[i + 1][j].getIsFrozen())
+				{
+					iceBlockBoard[i + 1][j].markIce();
+				}
+				if (j > 0 && iceBlockBoard[i][j - 1].getIsFrozen())
+				{
+					iceBlockBoard[i][j - 1].markIce();
+				}
+				if (j < BOARD_COLS - 1 && iceBlockBoard[i][j + 1].getIsFrozen())
+				{
+					iceBlockBoard[i][j + 1].markIce();
+				}
+			}
 		}
 	}
-	return matching;
+
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			if (iceBlockBoard[i][j].isMarkedIce())
+			{
+				iceBlockBoard[i][j].hit();
+
+				if (!iceBlockBoard[i][j].getIsFrozen())
+				{
+					cout << "Se ha roto un bloque de hielo en (" << i << ", " << j << ")." << endl;
+					iceBlocksBroken++;
+					if (iceBlocksBroken > 2)
+					{
+						iceBlocksBroken = 2;
+					}
+				}
+				else
+				{
+					cout << "Se ha golpeado un bloque de hielo en (" << i << ", " << j << ")." << endl;
+				}
+				hitting = true;
+			}
+			
+		}
+	}
+
+
+	return hitting;
+}
+
+bool Board::removeGems()
+{
+	bool removing = false;
+
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			if (board[i][j].isMarked())
+			{
+				board[i][j].getSprite()->setColor(Color::Transparent);				
+			}
+		}
+	}
+	return removing;
 }
 
 void Board::initializeBoard()
@@ -198,6 +292,9 @@ bool Board::updateBoard()
 				swap(board[i][j], board[i - 1][j]);
 				board[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
 				board[i - 1][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + (i - 1) * CELL_SIDE_SIZE));
+				swap(iceBlockBoard[i][j], iceBlockBoard[i - 1][j]);
+				iceBlockBoard[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
+				iceBlockBoard[i - 1][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + (i - 1) * CELL_SIDE_SIZE));
 				gravity = true;
 			}
 		}

@@ -152,14 +152,7 @@ void Game::gamePlay()
 						for (int j = 0; j < BOARD_COLS; j++)
 						{
 							if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
-							{
-
-								if (gameBoard.getIsFrozen(i, j))
-								{
-									cout << "La gema en (" << i << ", " << j << ") esta congelada y no se puede seleccionar." << endl;
-									click = 0;
-									break;
-								}
+							{								
 								click++;
 								cout << "Click count: " << click << endl;
 								if (click == 1)
@@ -172,6 +165,7 @@ void Game::gamePlay()
 
 									while (gameBoard.match())
 									{
+										gameBoard.hitIceAndGems();
 										points += gameBoard.totalMatches * 10;
 										movements--;
 										missionProgress();
@@ -179,8 +173,8 @@ void Game::gamePlay()
 										{
 											gameBoard.updateBoard();
 										} while (gameBoard.updateBoard());
-									}
-									
+
+									}							
 									click = 0;
 								}
 								if (movements == 0)
