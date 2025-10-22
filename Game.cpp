@@ -128,7 +128,11 @@ void Game::gamePlay()
 				if (gameBoard.getGem(i, j) != nullptr)
 				{
 					window->draw(*gameBoard.getGem(i, j));
-				}			
+				}
+				if (gameBoard.getIsFrozen(i,j) && gameBoard.getIceBlock(i, j) != nullptr)
+				{
+					window->draw(*gameBoard.getIceBlock(i, j));
+				}
 			}
 		}
 
@@ -149,6 +153,13 @@ void Game::gamePlay()
 						{
 							if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
 							{
+
+								if (gameBoard.getIsFrozen(i, j))
+								{
+									cout << "La gema en (" << i << ", " << j << ") esta congelada y no se puede seleccionar." << endl;
+									click = 0;
+									break;
+								}
 								click++;
 								cout << "Click count: " << click << endl;
 								if (click == 1)
@@ -284,6 +295,7 @@ void Game::endGame()
 						points = 0;
 						movements = 20;
 						gameBoard.diamondsCleared = 0;
+						gameBoard.iceBlocksBroken = 0;
 						playing = true;
 						gameOver = false;
 						break;
@@ -339,7 +351,16 @@ void Game::missionProgress()
 	}
 	else if (missionType == 1)
 	{
-		progressText = to_string(iceBlocks.totalMatches) + "/2";
+		progressText = to_string(gameBoard.iceBlocksBroken) + "/2";
+
+		if (gameBoard.iceBlocksBroken >= 2)
+		{
+			finalProgressText = "Objetivo cumplido.";
+		}
+		else
+		{
+			finalProgressText = "Objetivo no cumplido.";
+		}
 	}
 	else if (missionType == 2)
 	{

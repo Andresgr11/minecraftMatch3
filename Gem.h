@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
+#include <set>
 
 using namespace sf;
 using namespace std;

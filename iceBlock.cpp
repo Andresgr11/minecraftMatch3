@@ -2,15 +2,17 @@
 
 iceBlock::iceBlock()
 {
-	iceTexture.loadFromFile("assets\\ice.png");
-	iceSprite = new Sprite(iceTexture);
-	isFrozen = true;
-	iceCounter = 2;
+	iceSprite = nullptr;
+	isFrozen = false;
+	iceCounter = 0;
 }
 
 void iceBlock::setLocation(float x, float y)
 {
-	iceSprite->setPosition(Vector2f(x, y));
+	if (isFrozen && iceSprite != nullptr)
+	{
+		iceSprite->setPosition(Vector2f(x, y));
+	}
 }
 
 Sprite* iceBlock::getSprite()
@@ -26,4 +28,44 @@ bool iceBlock::getIsFrozen() const
 void iceBlock::setIsFrozen(bool frozen)
 {
 	isFrozen = frozen;
+	if (!isFrozen && iceSprite != nullptr)
+	{
+		delete iceSprite;
+		iceSprite = nullptr;
+		iceCounter = 0;
+	}
+}
+
+void iceBlock::setBlock(Texture& gtexture, int health)
+{
+	if (!isFrozen)
+	{
+		iceSprite = new Sprite(gtexture);
+		isFrozen = true;
+		iceCounter = health;
+	}
+}
+
+bool iceBlock::hit()
+{
+	bool hitIce = false;
+	
+	if (!isFrozen)
+	{
+		return hitIce;
+	}
+
+	iceCounter--;
+
+	if (iceCounter <= 0)
+	{
+		isFrozen = false;
+		if (iceSprite != nullptr)
+		{
+			delete iceSprite;
+			iceSprite = nullptr;
+		}
+		hitIce = true;
+	}
+	return hitIce;
 }

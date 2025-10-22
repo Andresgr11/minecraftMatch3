@@ -11,7 +11,6 @@ using namespace std;
 class iceBlock
 {
 private:
-	Texture iceTexture;
 	Sprite* iceSprite;
 	bool isFrozen;
 public:
@@ -20,6 +19,8 @@ public:
 	void setLocation(float x, float y);
 	Sprite* getSprite();
 	bool getIsFrozen() const;
-	void setIsFrozen(bool frozen);	
+	void setIsFrozen(bool frozen);
+	void setBlock(Texture& gtexture, int health = 2);
+	bool hit();
 };
 
