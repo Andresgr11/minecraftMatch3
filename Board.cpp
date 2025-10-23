@@ -1,6 +1,4 @@
 #include "Board.h"
-#include "Game.h"
-#include "iceBlock.h"
 
 Board::Board()
 {
@@ -18,6 +16,7 @@ Board::Board()
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
+			board[i][j] = new normalGem();
 			random = rand() % GEM_TYPE_QUANTITY;
 			board[i][j]->setGem(gemTextures[random], random);
 			board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
@@ -26,7 +25,7 @@ Board::Board()
 	}
 
 	int iceLimit = rand() % 2 + 2;
-	
+
 	for (int i = 0; i < iceLimit; i++)
 	{
 		int iceRow = rand() % BOARD_ROWS;
@@ -45,6 +44,17 @@ Board::Board()
 	diamondsCleared = 0;
 	iceBlocksBroken = 0;
 	hitCounter = 0;
+}
+
+Board::~Board()
+{
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			delete board[i][j];
+		}
+	}
 }
 
 Sprite* Board::getGem(int row, int col)
@@ -74,7 +84,7 @@ void Board::setLocation(int row, int col, float x, float y)
 
 void Board::selectGem(int row, int col)
 {
-	cout << "Gema seleccionada en (" << row << ", " << col << ") del tipo #" << board[row][col].getGemKind() << endl;
+	cout << "Gema seleccionada en (" << row << ", " << col << ") del tipo #" << board[row][col]->getGemKind() << endl;
 	board[row][col]->getSprite()->setColor(Color::Blue);
 	selectedGemCol = col;
 	selectedGemRow = row;
@@ -146,7 +156,7 @@ bool Board::match()
 					}
 				}
 			}
-			
+
 			if (i < BOARD_ROWS - 2)
 			{
 				if ((board[i][j]->getGemKind() == board[i + 1][j]->getGemKind() && board[i][j]->getGemKind() == board[i + 2][j]->getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
@@ -160,13 +170,13 @@ bool Board::match()
 					{
 						diamondsCleared++;
 					}
-				}				
+				}
 			}
 			if (board[i][j]->isMarked())
 			{
 				totalMatches++;
 			}
-		}		
+		}
 	}
 
 	if (!matching)
@@ -231,7 +241,7 @@ bool Board::hitIceAndGems()
 				}
 				hitting = true;
 			}
-			
+
 		}
 	}
 
@@ -249,7 +259,7 @@ bool Board::removeGems()
 		{
 			if (board[i][j]->isMarked())
 			{
-				board[i][j]->getSprite()->setColor(Color::Transparent);				
+				board[i][j]->getSprite()->setColor(Color::Transparent);
 			}
 		}
 	}
@@ -267,15 +277,16 @@ void Board::initializeBoard()
 			{
 				if (board[i][j]->getSprite()->getColor() == Color::Transparent)
 				{
-					board[i][j]->deleteGem();
+					delete board[i][j];
+					board[i][j] = new normalGem();
 					int random = rand() % GEM_TYPE_QUANTITY;
 					board[i][j]->setGem(gemTextures[random], random);
 					board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-					
+
 				}
 			}
 		}
-	}		
+	}
 }
 
 bool Board::updateBoard()
@@ -304,13 +315,14 @@ bool Board::updateBoard()
 	{
 		if (board[0][j]->getSprite()->getColor() == Color::Transparent)
 		{
-			board[0][j]->deleteGem();
+			delete board[0][j];
+			board[0][j] = new normalGem();
 			int random = rand() % GEM_TYPE_QUANTITY;
 			board[0][j]->setGem(gemTextures[random], random);
 			board[0][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + 0 * CELL_SIDE_SIZE));
 			gravity = true;
 		}
-	}	
+	}
 	return gravity;
 }
 

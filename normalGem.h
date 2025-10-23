@@ -3,8 +3,4 @@
 class normalGem : public Gem
 {
 public:
-
-
-
-
 };

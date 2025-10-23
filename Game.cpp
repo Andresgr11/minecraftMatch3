@@ -169,12 +169,9 @@ void Game::gamePlay()
 										points += gameBoard.totalMatches * 10;
 										movements--;
 										missionProgress();
-										do
-										{
-											gameBoard.updateBoard();
-										} while (gameBoard.updateBoard());
+										while (gameBoard.updateBoard());
 
-									}							
+									}
 									click = 0;
 								}
 								if (movements == 0)

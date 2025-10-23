@@ -1,6 +1,9 @@
 #pragma once
 #include "Gem.h"
 #include "iceBlock.h"
+#include "normalGem.h"
+#include "bombGem.h"
+#include "lineGem.h"
 
 class Board
 {
@@ -17,6 +20,7 @@ public:
 	int iceBlocksBroken;
 	int hitCounter;
 	Board();
+	~Board();
 	Sprite* getGem(int row, int col);
 	Sprite* getIceBlock(int row, int col);
 	int getGemKind(int row, int col);

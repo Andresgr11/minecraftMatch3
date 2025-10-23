@@ -18,6 +18,7 @@ private:
 	bool markedForMatch;
 public:
 	Gem();
+	virtual ~Gem();
 	virtual void deleteGem();
 	enum class state { idle, moving };
 	void setGem(Texture& gtexture, int gKind);

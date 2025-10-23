@@ -7,6 +7,11 @@ Gem::Gem()
 	markedForMatch = false;
 }
 
+Gem::~Gem()
+{
+	deleteGem();
+}
+
 void Gem::deleteGem()
 {
 	if (gemSprite != nullptr)
@@ -14,9 +19,6 @@ void Gem::deleteGem()
 		delete gemSprite;
 		gemSprite = nullptr;
 	}
-
-
-
 }
 
 void Gem::setGem(Texture& gtexture, int gKind)
