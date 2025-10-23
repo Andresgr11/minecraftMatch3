@@ -4,7 +4,4 @@ class bombGem : public Gem
 {
 public:
 
-
-
-
 };
