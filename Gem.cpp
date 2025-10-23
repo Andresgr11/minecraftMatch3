@@ -37,6 +37,12 @@ Sprite* Gem::getSprite()
 	return gemSprite;
 }
 
+Gem::GemType Gem::getType() const
+{
+	return GemType::Normal;
+}
+
+
 int Gem::getGemKind() const
 {
 	return kind;

@@ -10,6 +10,8 @@ Board::Board()
 
 	iceBlockTexture.loadFromFile("assets\\ice.png");
 
+	bombTexture.loadFromFile("assets\\tnt.png");
+
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
@@ -39,6 +41,10 @@ Board::~Board()
 
 Sprite* Board::getGem(int row, int col)
 {
+	if (board[row][col] == nullptr)
+	{
+		return nullptr;
+	}
 	return board[row][col]->getSprite();
 }
 
@@ -49,6 +55,10 @@ Sprite* Board::getIceBlock(int row, int col)
 
 int Board::getGemKind(int row, int col)
 {
+	if (board[row][col] == nullptr)
+	{
+		return -1;
+	}
 	return board[row][col]->getGemKind();
 }
 
@@ -90,23 +100,46 @@ bool Board::swapping(int row1, int col1, int row2, int col2)
 		board[row1][col1]->setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
 		board[row2][col2]->setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
 		swapping = true;
+
+		bool bombSwap = false;
+
+		if (board[row1][col1]->getType() == Gem::GemType::Bomb || board[row2][col2]->getType() == Gem::GemType::Bomb)
+		{
+			bombSwap = true;
+			board[row1][col1]->mark();
+			board[row2][col2]->mark();
+		}
+		if (bombSwap)	
+		{
+			cout << "Explosion de bomba activada!" << endl;
+			return true;
+		}
+
+		if (!match())
+		{
+			swap(board[row1][col1], board[row2][col2]);
+			board[row1][col1]->setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
+			board[row2][col2]->setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
+			board[row1][col1]->getSprite()->setColor(Color::White);
+			board[row2][col2]->getSprite()->setColor(Color::White);
+			cout << "Match no encontrado." << endl;
+			swapping = false;
+		}
+		else
+		{
+			bombCreation(row1, row1);
+			bombCreation(row2, col2);
+			swapping = true;
+		}
+	
 	}
-	if (!swapping)
+	else
 	{
 		board[row1][col1]->getSprite()->setColor(Color::White);
 		cout << "Intercambio no realizado." << endl;
-		return swapping;
-	}
-	else if (!match())
-	{
-		swap(board[row1][col1], board[row2][col2]);
-		board[row1][col1]->setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
-		board[row2][col2]->setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
-		board[row1][col1]->getSprite()->setColor(Color::White);
-		board[row2][col2]->getSprite()->setColor(Color::White);
-		cout << "Match no encontrado." << endl;
 		swapping = false;
 	}
+
 	return swapping;
 }
 
@@ -114,61 +147,55 @@ bool Board::match()
 {
 	bool matching = false;
 
-	totalMatches = 0;
-	hitCounter = 0;
-
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
 			if (j < BOARD_COLS - 2)
 			{
+				if (board[i][j + 1] == nullptr || board[i][j + 2] == nullptr || board[i][j + 1]->getType() == Gem::GemType::Bomb || board[i][j + 2]->getType() == Gem::GemType::Bomb)
+				{
+					continue;
+				}
+
 				bool gemsMatched = (board[i][j]->getGemKind() == board[i][j + 1]->getGemKind() && board[i][j]->getGemKind() == board[i][j + 2]->getGemKind());
+
 				bool gemsUnfrozen = (!iceBlockBoard[i][j].getIsFrozen() && !iceBlockBoard[i][j + 1].getIsFrozen() && !iceBlockBoard[i][j + 2].getIsFrozen());
+				bool matchFounded = false;
 				if (gemsMatched && gemsUnfrozen)
 				{
-					cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
 					board[i][j]->mark();
 					board[i][j + 1]->mark();
 					board[i][j + 2]->mark();
 					matching = true;
-					if (board[i][j]->getGemKind() == 0)
-					{
-						diamondsCleared++;
-					}
+					cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
+
 				}
 			}
 
 			if (i < BOARD_ROWS - 2)
 			{
+				if (board[i + 1][j] == nullptr || board[i + 2][j] == nullptr || board[i + 1][j]->getType() == Gem::GemType::Bomb || board[i + 2][j]->getType() == Gem::GemType::Bomb)
+				{
+					continue;
+				}
+
 				bool gemsMatched = (board[i][j]->getGemKind() == board[i + 1][j]->getGemKind() && board[i][j]->getGemKind() == board[i + 2][j]->getGemKind());
+
 				bool gemsUnfrozen = (!iceBlockBoard[i][j].getIsFrozen() && !iceBlockBoard[i + 1][j].getIsFrozen() && !iceBlockBoard[i + 2][j].getIsFrozen());
+
+				bool matchFounded = false;
 				if (gemsMatched && gemsUnfrozen)
 				{
-					cout << "Match encontrado en (" << i << ", " << j << "), (" << i + 1 << ", " << j << "), (" << i + 2 << ", " << j << ")" << endl;
 					board[i][j]->mark();
 					board[i + 1][j]->mark();
 					board[i + 2][j]->mark();
 					matching = true;
-					if (board[i][j]->getGemKind() == 0)
-					{
-						diamondsCleared++;
-					}
+					cout << "Match encontrado en (" << i << ", " << j << "), (" << i + 1 << ", " << j << "), (" << i + 2 << ", " << j << ")" << endl;
 				}
-			}
-			if (board[i][j]->isMarked())
-			{
-				totalMatches++;
 			}
 		}
 	}
-
-	if (!matching)
-	{
-		return matching;
-	}
-	removeGems();
-
 	return matching;
 }
 
@@ -239,14 +266,13 @@ bool Board::hitIceAndGems()
 
 		}
 	}
-
-
 	return hitting;
 }
 
-bool Board::removeGems()
+int Board::removeGems()
 {
-	bool removing = false;
+	int matchesFound = 0;
+	totalMatches = 0;
 
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
@@ -254,13 +280,108 @@ bool Board::removeGems()
 		{
 			if (board[i][j]->isMarked())
 			{
-				board[i][j]->getSprite()->setColor(Color::Transparent);
-				removing = true;
+				if (board[i][j]->getSprite()->getColor() != Color::Transparent)
+				{
+					matchesFound++;
+
+					if (board[i][j]->getGemKind() == 0)
+					{
+						diamondsCleared++;
+					}
+					board[i][j]->getSprite()->setColor(Color::Transparent);
+				}
+				board[i][j]->unmark();
 			}
 		}
 	}
-	return removing;
+	totalMatches = matchesFound;
+	return matchesFound;
 }
+
+int Board::explotingGems(int row, int col, int dRow, int dCol, int kind)
+{
+	int count = 0;
+	for (int i = 1; i < BOARD_ROWS; i++)
+	{
+		int newRow = row + dRow * i;
+		int newCol = col + dCol * i;
+
+		if (newRow < 0 || newRow >= BOARD_ROWS || newCol < 0 || newCol >= BOARD_COLS)
+		{
+			break;
+		}
+
+		if (board[newRow][newCol] == nullptr || !board[newRow][newCol]->isMarked() || board[newRow][newCol]->getGemKind() != kind)
+		{
+			break;
+		}
+
+		count++;
+	}
+
+	return count;
+}
+
+void Board::bombCreation(int row, int col)
+{
+	if (!board[row][col]->isMarked() || board[row][col]->getType() == Gem::GemType::Bomb)
+	{
+		return;
+	}
+
+	int kind = board[row][col]->getGemKind();
+
+	int horizontal = 1 + explotingGems(row, col, 0, 1, kind) + explotingGems(row, col, 0, -1, kind);
+	int vertical = 1 + explotingGems(row, col, 1, 0, kind) + explotingGems(row, col, -1, 0, kind);
+
+	if (horizontal >= 4 || vertical >= 4)
+	{
+		board[row][col]->unmark();
+		delete board[row][col];
+		board[row][col] = new bombGem();
+		board[row][col]->setGem(bombTexture, 5);
+		board[row][col]->setLocation(static_cast<float>(BOARD_X_START + col * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row * CELL_SIDE_SIZE));
+		board[row][col]->getSprite()->setColor(Color::White);
+		cout << "Bomba creada en (" << row << ", " << col << ")." << endl;
+	}
+}
+
+bool Board::bombExplosion()
+{
+	bool exploding = false;
+	bool newExplotions = true;
+
+	while (newExplotions)
+	{
+		newExplotions = false;
+		for (int i = 0; i < BOARD_ROWS; i++)
+		{
+			for (int j = 0; j < BOARD_COLS; j++)
+			{
+				if (board[i][j]->isMarked() && board[i][j]->getType() == Gem::GemType::Bomb && board[i][j]->getSprite()->getColor() != Color::Transparent)
+				{
+					cout << "TNT explotandose en (" << i << ", " << j << ")." << endl;
+					exploding = true;
+					newExplotions = true;
+					board[i][j]->getSprite()->setColor(Color::Transparent);
+
+					for (int row = i - 1; row <= i + 1; row++)
+					{
+						for (int col = j - 1; col <= j + 1; col++)
+						{
+							if (row >= 0 && row < BOARD_ROWS && col >= 0 && col < BOARD_COLS && board[row][col] != nullptr)
+							{
+								board[row][col]->mark();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return exploding;
+}
+
 
 void Board::initializeBoard()
 {
@@ -305,31 +426,16 @@ void Board::initializeBoard()
 
 void Board::clearInitialMatches()
 {
-	match();
 	while (match())
 	{
-		for (int i = 0; i < BOARD_ROWS; i++)
-		{
-			for (int j = 0; j < BOARD_COLS; j++)
-			{
-				if (board[i][j]->getSprite()->getColor() == Color::Transparent)
-				{
-					delete board[i][j];
-					board[i][j] = new normalGem();
-					int random = rand() % GEM_TYPE_QUANTITY;
-					board[i][j]->setGem(gemTextures[random], random);
-					board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-
-				}
-			}
-		}
+		removeGems();
+		while (updateBoard());
 	}
 }
 
 bool Board::updateBoard()
 {
 	bool gravity = false;
-	match();
 
 	for (int i = BOARD_ROWS - 1; i >= 1; i--)
 	{

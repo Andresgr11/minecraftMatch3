@@ -3,5 +3,5 @@
 class bombGem : public Gem
 {
 public:
-
+	virtual GemType getType() const override;
 };

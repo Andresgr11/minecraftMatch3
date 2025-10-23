@@ -17,13 +17,14 @@ private:
 	int kind;
 	bool markedForMatch;
 public:
+	enum class GemType { Normal, Bomb };
 	Gem();
 	virtual ~Gem();
 	virtual void deleteGem();
-	enum class state { idle, moving };
 	void setGem(Texture& gtexture, int gKind);
 	virtual void setLocation(float x, float y);
 	virtual Sprite* getSprite();
+	virtual GemType getType() const;
 	virtual int getGemKind() const;
 	virtual void setGemKind(int gKind);
 	virtual void mark();

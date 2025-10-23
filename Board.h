@@ -3,7 +3,6 @@
 #include "iceBlock.h"
 #include "normalGem.h"
 #include "bombGem.h"
-#include "lineGem.h"
 
 class Board
 {
@@ -12,6 +11,8 @@ private:
 	Texture gemTextures[GEM_TYPE_QUANTITY];
 	iceBlock iceBlockBoard[BOARD_ROWS][BOARD_COLS];
 	Texture iceBlockTexture;
+	Texture bombTexture;
+	int explotingGems(int row, int col, int dRow, int dCol, int kind);
 public:
 	int selectedGemRow;
 	int selectedGemCol;
@@ -30,7 +31,9 @@ public:
 	bool swapping(int row1, int col1, int row2, int col2);
 	bool match();
 	bool hitIceAndGems();
-	bool removeGems();
+	int removeGems();
+	bool bombExplosion();
+	void bombCreation(int row, int col);
 	void initializeBoard();
 	void clearInitialMatches();
 	bool updateBoard();

@@ -162,16 +162,33 @@ void Game::gamePlay()
 								}
 								if (click == 2)
 								{
-									gameBoard.swapping(gameBoard.selectedGemRow, gameBoard.selectedGemCol, i, j);
-
-									while (gameBoard.match())
+									if (gameBoard.swapping(gameBoard.selectedGemRow, gameBoard.selectedGemCol, i, j))
 									{
-										gameBoard.hitIceAndGems();
-										points += gameBoard.totalMatches * 10;
 										movements--;
-										missionProgress();
-										while (gameBoard.updateBoard());
+										bool gemsGravity = true;
 
+										while (gemsGravity)
+										{
+											gameBoard.bombExplosion();
+
+											gameBoard.hitIceAndGems();
+
+											int matches = gameBoard.removeGems();
+											points += matches * 10;
+
+											missionProgress();
+
+											if (matches > 0)
+											{
+												while (gameBoard.updateBoard());
+												gemsGravity = gameBoard.match();
+											}
+											else
+											{
+												gemsGravity = false;
+
+											}
+										}
 									}
 									click = 0;
 								}

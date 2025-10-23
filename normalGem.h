@@ -3,4 +3,5 @@
 class normalGem : public Gem
 {
 public:
+	virtual GemType getType() const override;
 };
