@@ -32,6 +32,7 @@ public:
 	bool hitIceAndGems();
 	bool removeGems();
 	void initializeBoard();
+	void clearInitialMatches();
 	bool updateBoard();
 	bool isAnimating();
 };

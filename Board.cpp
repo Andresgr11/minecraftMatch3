@@ -10,31 +10,11 @@ Board::Board()
 
 	iceBlockTexture.loadFromFile("assets\\ice.png");
 
-	srand(time(0));
-	int random = 0;
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
-			board[i][j] = new normalGem();
-			random = rand() % GEM_TYPE_QUANTITY;
-			board[i][j]->setGem(gemTextures[random], random);
-			board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-
-		}
-	}
-
-	int iceLimit = rand() % 2 + 2;
-
-	for (int i = 0; i < iceLimit; i++)
-	{
-		int iceRow = rand() % BOARD_ROWS;
-		int iceCol = rand() % BOARD_COLS;
-
-		if (!iceBlockBoard[iceRow][iceCol].getIsFrozen())
-		{
-			iceBlockBoard[iceRow][iceCol].setBlock(iceBlockTexture, 2);
-			iceBlockBoard[iceRow][iceCol].setLocation(static_cast<float>(BOARD_X_START + iceCol * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + iceRow * CELL_SIDE_SIZE));
+			board[i][j] = nullptr;
 		}
 	}
 
@@ -143,7 +123,9 @@ bool Board::match()
 		{
 			if (j < BOARD_COLS - 2)
 			{
-				if ((board[i][j]->getGemKind() == board[i][j + 1]->getGemKind() && board[i][j]->getGemKind() == board[i][j + 2]->getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
+				bool gemsMatched = (board[i][j]->getGemKind() == board[i][j + 1]->getGemKind() && board[i][j]->getGemKind() == board[i][j + 2]->getGemKind());
+				bool gemsUnfrozen = (!iceBlockBoard[i][j].getIsFrozen() && !iceBlockBoard[i][j + 1].getIsFrozen() && !iceBlockBoard[i][j + 2].getIsFrozen());
+				if (gemsMatched && gemsUnfrozen)
 				{
 					cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
 					board[i][j]->mark();
@@ -159,9 +141,11 @@ bool Board::match()
 
 			if (i < BOARD_ROWS - 2)
 			{
-				if ((board[i][j]->getGemKind() == board[i + 1][j]->getGemKind() && board[i][j]->getGemKind() == board[i + 2][j]->getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
+				bool gemsMatched = (board[i][j]->getGemKind() == board[i + 1][j]->getGemKind() && board[i][j]->getGemKind() == board[i + 2][j]->getGemKind());
+				bool gemsUnfrozen = (!iceBlockBoard[i][j].getIsFrozen() && !iceBlockBoard[i + 1][j].getIsFrozen() && !iceBlockBoard[i + 2][j].getIsFrozen());
+				if (gemsMatched && gemsUnfrozen)
 				{
-					cout << "Match encontrado en (" << j << ", " << i << "), (" << j + 1 << ", " << i << "), (" << j + 2 << ", " << i << ")" << endl;
+					cout << "Match encontrado en (" << i << ", " << j << "), (" << i + 1 << ", " << j << "), (" << i + 2 << ", " << j << ")" << endl;
 					board[i][j]->mark();
 					board[i + 1][j]->mark();
 					board[i + 2][j]->mark();
@@ -224,9 +208,9 @@ bool Board::hitIceAndGems()
 		{
 			if (iceBlockBoard[i][j].isMarkedIce())
 			{
-				iceBlockBoard[i][j].hit();
+				bool iceWasBroken = iceBlockBoard[i][j].hit();
 
-				if (!iceBlockBoard[i][j].getIsFrozen())
+				if (iceWasBroken)
 				{
 					cout << "Se ha roto un bloque de hielo en (" << i << ", " << j << ")." << endl;
 					iceBlocksBroken++;
@@ -235,11 +219,22 @@ bool Board::hitIceAndGems()
 						iceBlocksBroken = 2;
 					}
 				}
+				if (!board[i][j]->isMarked())
+				{
+					board[i][j]->mark();
+					totalMatches++;
+
+					if (board[i][j]->getGemKind() == 0)
+					{
+						diamondsCleared++;
+					}
+				}
 				else
 				{
 					cout << "Se ha golpeado un bloque de hielo en (" << i << ", " << j << ")." << endl;
 				}
 				hitting = true;
+				iceBlockBoard[i][j].unmarkIce();
 			}
 
 		}
@@ -260,6 +255,7 @@ bool Board::removeGems()
 			if (board[i][j]->isMarked())
 			{
 				board[i][j]->getSprite()->setColor(Color::Transparent);
+				removing = true;
 			}
 		}
 	}
@@ -267,6 +263,47 @@ bool Board::removeGems()
 }
 
 void Board::initializeBoard()
+{
+	srand(time(0));
+	int random = 0;
+
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			if (board[i][j] != nullptr)
+			{
+				delete board[i][j];
+			}
+			board[i][j] = new normalGem();
+			random = rand() % GEM_TYPE_QUANTITY;
+			board[i][j]->setGem(gemTextures[random], random);
+			board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
+
+			if (iceBlockBoard[i][j].getIsFrozen())
+			{
+				iceBlockBoard[i][j].setIsFrozen(false);
+			}
+		}
+	}
+	int iceLimit = rand() % 2 + 2;
+
+	for (int i = 0; i < iceLimit; i++)
+	{
+		int iceRow = rand() % BOARD_ROWS;
+		int iceCol = rand() % BOARD_COLS;
+
+		if (!iceBlockBoard[iceRow][iceCol].getIsFrozen())
+		{
+			iceBlockBoard[iceRow][iceCol].setBlock(iceBlockTexture, 2);
+			iceBlockBoard[iceRow][iceCol].setLocation(static_cast<float>(BOARD_X_START + iceCol * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + iceRow * CELL_SIDE_SIZE));
+		}
+	}
+
+
+}
+
+void Board::clearInitialMatches()
 {
 	match();
 	while (match())

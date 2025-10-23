@@ -59,6 +59,7 @@ void Game::gameMenu()
 void Game::gamePlay()
 {
 	gameBoard.initializeBoard();
+	gameBoard.clearInitialMatches();
 
 	missions();
 
