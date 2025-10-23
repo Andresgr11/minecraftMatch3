@@ -42,7 +42,6 @@ Gem::GemType Gem::getType() const
 	return GemType::Normal;
 }
 
-
 int Gem::getGemKind() const
 {
 	return kind;
@@ -71,6 +70,5 @@ bool Gem::isMarked() const
 bool Gem::animating(float x, float y)
 {
 	bool anim = false;
-
 	return anim;
 }

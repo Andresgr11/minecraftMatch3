@@ -245,17 +245,7 @@ bool Board::hitIceAndGems()
 					{
 						iceBlocksBroken = 2;
 					}
-				}
-				if (!board[i][j]->isMarked())
-				{
-					board[i][j]->mark();
-					totalMatches++;
-
-					if (board[i][j]->getGemKind() == 0)
-					{
-						diamondsCleared++;
-					}
-				}
+				}			
 				else
 				{
 					cout << "Se ha golpeado un bloque de hielo en (" << i << ", " << j << ")." << endl;
@@ -263,7 +253,6 @@ bool Board::hitIceAndGems()
 				hitting = true;
 				iceBlockBoard[i][j].unmarkIce();
 			}
-
 		}
 	}
 	return hitting;
@@ -310,15 +299,12 @@ int Board::explotingGems(int row, int col, int dRow, int dCol, int kind)
 		{
 			break;
 		}
-
 		if (board[newRow][newCol] == nullptr || !board[newRow][newCol]->isMarked() || board[newRow][newCol]->getGemKind() != kind)
 		{
 			break;
 		}
-
 		count++;
 	}
-
 	return count;
 }
 
@@ -328,7 +314,6 @@ void Board::bombCreation(int row, int col)
 	{
 		return;
 	}
-
 	int kind = board[row][col]->getGemKind();
 
 	int horizontal = 1 + explotingGems(row, col, 0, 1, kind) + explotingGems(row, col, 0, -1, kind);
@@ -420,8 +405,6 @@ void Board::initializeBoard()
 			iceBlockBoard[iceRow][iceCol].setLocation(static_cast<float>(BOARD_X_START + iceCol * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + iceRow * CELL_SIDE_SIZE));
 		}
 	}
-
-
 }
 
 void Board::clearInitialMatches()

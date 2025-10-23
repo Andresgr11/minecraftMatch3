@@ -61,6 +61,9 @@ void Game::gamePlay()
 	gameBoard.initializeBoard();
 	gameBoard.clearInitialMatches();
 
+	gameBoard.diamondsCleared = 0;
+	gameBoard.iceBlocksBroken = 0;
+
 	missions();
 
 	while (window->isOpen() && playing)
@@ -194,9 +197,18 @@ void Game::gamePlay()
 								}
 								if (movements == 0)
 								{
-									gameOver = true;
-									playing = false;
-									break;
+									if (objetiveCompleted)
+									{
+										levelComplete = true;
+										playing = false;										
+										break;
+									}
+									else
+									{
+										gameOver = true;
+										playing = false;
+										break;
+									}									
 								}
 							}
 						}
@@ -205,6 +217,114 @@ void Game::gamePlay()
 					{
 						cout << "Boton Salir presionado" << endl;
 						playing = false;
+						window->close();
+						break;
+					}
+				}
+			}
+		}
+		window->display();
+	}
+}
+
+void Game::gameWin()
+{
+	while (window->isOpen() && levelComplete)
+	{
+		Font font("assets\\Minecraft.otf");
+		
+		Text winningText(font, "¡Has ganado!");
+		winningText.setCharacterSize(50);
+		winningText.setFillColor(Color::White);
+		winningText.setPosition(Vector2f{ 50, 30 });
+
+		String finalPointsText = "Puntuacion: " + to_string(points);
+		String movesText = "Movimientos: " + to_string(movements);
+		String objetive = "Objetivo: " + missionText;
+		String progress = "Progreso: " + progressText;
+		String finalProgress = finalProgressText;
+
+		Text finalScore(font, finalPointsText);
+		finalScore.setCharacterSize(30);
+		finalScore.setFillColor(Color::White);
+		finalScore.setPosition(Vector2f{ 500, 20 });
+
+		Text moves(font, movesText);
+		moves.setCharacterSize(30);
+		moves.setFillColor(Color::White);
+		moves.setPosition(Vector2f{ 500, 60 });
+
+		Text objetiveText(font, objetive);
+		objetiveText.setCharacterSize(20);
+		objetiveText.setFillColor(Color::White);
+		objetiveText.setPosition(Vector2f{ 50, 100 });
+
+		Text progressText(font, progress);
+		progressText.setCharacterSize(20);
+		progressText.setFillColor(Color::White);
+		progressText.setPosition(Vector2f{ 50, 130 });
+
+		Text finalProgressMission(font, finalProgress);
+		finalProgressMission.setCharacterSize(20);
+		finalProgressMission.setFillColor(Color::White);
+		finalProgressMission.setPosition(Vector2f{ 50, 160 });
+
+		RectangleShape nextLevelButton(Vector2f(200, 50));
+		nextLevelButton.setFillColor(Color::Blue);
+		nextLevelButton.setPosition(Vector2f{ 50, 200 });
+
+		Text nextLevelText(font, "Siguiente nivel");
+		nextLevelText.setCharacterSize(25);
+		nextLevelText.setFillColor(Color::White);
+		nextLevelText.setPosition(Vector2f{ 60, 205 });
+
+		RectangleShape exitButton(Vector2f(200, 50));
+		exitButton.setFillColor(Color::Yellow);
+		exitButton.setPosition(Vector2f{ 50, 400 });
+
+		Text exitText(font, "Salir");
+		exitText.setCharacterSize(30);
+		exitText.setFillColor(Color::White);
+		exitText.setPosition(Vector2f{ 115, 405 });
+
+		window->clear(Color::Green);
+		window->draw(winningText);
+		window->draw(finalScore);
+		window->draw(moves);
+		window->draw(objetiveText);
+		window->draw(progressText);
+		window->draw(finalProgressMission);
+		window->draw(nextLevelButton);
+		window->draw(nextLevelText);
+		window->draw(exitButton);
+		window->draw(exitText);
+
+		while (const optional event = window->pollEvent())
+		{
+			if (event->is<Event::Closed>())
+				window->close();
+
+			Vector2i pos = Mouse::getPosition(*window);
+			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
+			{
+				if (mouseButtonPressed->button == Mouse::Button::Left)
+				{
+					if (nextLevelButton.getGlobalBounds().contains(Vector2f(pos)))
+					{
+						cout << "Boton de siguiente nivel presionado" << endl;
+						points = 0;
+						movements = 20;
+						gameBoard.diamondsCleared = 0;
+						gameBoard.iceBlocksBroken = 0;
+						missionType++;
+						playing = true;
+						levelComplete = false;
+						break;
+					}
+					if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
+					{
+						cout << "Boton Salir presionado" << endl;
+						levelComplete = false;
 						window->close();
 						break;
 					}
@@ -325,21 +445,22 @@ void Game::endGame()
 
 void Game::missions()
 {
-	srand(time(0));
-	int random = rand() % 3;
-	missionType = random;
-
+	objetiveCompleted = false;
 	if (missionType == 0)
 	{
-		missionText = "Elimina 15 diamantes.";
+		missionText = "Rompe 2 bloques de hielo.";
 	}
 	else if (missionType == 1)
 	{
-		missionText = "Romper 2 bloques de hielo.";
+		missionText = "Obten 1500 puntos.";
 	}
 	else if (missionType == 2)
 	{
-		missionText = "Obtenga 1000 puntos.";
+		missionText = "Elimina 30 diamantes.";
+	}
+	else if (missionType > 2)
+	{
+		missionType = 0;
 	}
 }
 
@@ -347,24 +468,28 @@ void Game::missionProgress()
 {
 	if (missionType == 0)
 	{		
-		progressText = to_string(gameBoard.diamondsCleared) + "/15";
-
-		if (gameBoard.diamondsCleared >= 15)
-		{
-			finalProgressText = "Objetivo cumplido.";
-		}
-		else
-		{
-			finalProgressText = "Objetivo no cumplido.";
-		}	
-	}
-	else if (missionType == 1)
-	{
 		progressText = to_string(gameBoard.iceBlocksBroken) + "/2";
 
 		if (gameBoard.iceBlocksBroken >= 2)
 		{
+			objetiveCompleted = true;
 			finalProgressText = "Objetivo cumplido.";
+			movements = 0;		
+		}
+		else
+		{
+			finalProgressText = "Objetivo no cumplido.";
+		}
+	}
+	else if (missionType == 1)
+	{
+		progressText = to_string(points) + "/1500";
+
+		if (points >= 1500)
+		{
+			objetiveCompleted = true;
+			finalProgressText = "Objetivo cumplido.";
+			movements = 0;		
 		}
 		else
 		{
@@ -373,10 +498,13 @@ void Game::missionProgress()
 	}
 	else if (missionType == 2)
 	{
-		progressText = to_string(points) + "/1000";
-		if (points >= 1000)
+		progressText = to_string(gameBoard.diamondsCleared) + "/30";
+
+		if (gameBoard.diamondsCleared >= 30)
 		{
+			objetiveCompleted = true;
 			finalProgressText = "Objetivo cumplido.";
+			movements = 0;
 		}
 		else
 		{
@@ -388,7 +516,9 @@ void Game::missionProgress()
 Game::Game()
 {
 	playing = false;
+	levelComplete = false;
 	gameOver = false;
+	objetiveCompleted = false;
 	menu = true;
 	window = new RenderWindow(VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), WINDOW_TITLE);
 	window->setFramerateLimit(FPS);
@@ -399,14 +529,18 @@ Game::Game()
 	int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
 
 	gameMenu();
-	while (playing || gameOver)
+	while (playing || levelComplete || gameOver)
 	{
 		if (playing)
 		{
 			gamePlay();
 
 		}
-		if (gameOver)
+		else if (levelComplete)
+		{
+			gameWin();
+		}
+		else if (gameOver)
 		{
 			endGame();
 		}

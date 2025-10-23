@@ -9,9 +9,11 @@ private:
 	Board gameBoard;
 	bool menu;
 	bool playing;
+	bool levelComplete;
 	bool gameOver;
 	void gameMenu();
 	void gamePlay();
+	void gameWin();
 	void endGame();
 	void missions();
 	void missionProgress();
@@ -26,4 +28,5 @@ public:
 	int points;
 	int movements;
 	int missionType;
+	bool objetiveCompleted;
 };
