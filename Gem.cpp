@@ -7,6 +7,18 @@ Gem::Gem()
 	markedForMatch = false;
 }
 
+void Gem::deleteGem()
+{
+	if (gemSprite != nullptr)
+	{
+		delete gemSprite;
+		gemSprite = nullptr;
+	}
+
+
+
+}
+
 void Gem::setGem(Texture& gtexture, int gKind)
 {
 	gemSprite = new Sprite (gtexture);

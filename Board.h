@@ -5,7 +5,7 @@
 class Board
 {
 private:
-	Gem board[BOARD_ROWS][BOARD_COLS];
+	Gem* board[BOARD_ROWS][BOARD_COLS];
 	Texture gemTextures[GEM_TYPE_QUANTITY];
 	iceBlock iceBlockBoard[BOARD_ROWS][BOARD_COLS];
 	Texture iceBlockTexture;

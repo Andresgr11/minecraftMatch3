@@ -19,8 +19,8 @@ Board::Board()
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
 			random = rand() % GEM_TYPE_QUANTITY;
-			board[i][j].setGem(gemTextures[random], random);
-			board[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
+			board[i][j]->setGem(gemTextures[random], random);
+			board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
 
 		}
 	}
@@ -49,7 +49,7 @@ Board::Board()
 
 Sprite* Board::getGem(int row, int col)
 {
-	return board[row][col].getSprite();
+	return board[row][col]->getSprite();
 }
 
 Sprite* Board::getIceBlock(int row, int col)
@@ -59,7 +59,7 @@ Sprite* Board::getIceBlock(int row, int col)
 
 int Board::getGemKind(int row, int col)
 {
-	return board[row][col].getGemKind();
+	return board[row][col]->getGemKind();
 }
 
 bool Board::getIsFrozen(int row, int col)
@@ -69,13 +69,13 @@ bool Board::getIsFrozen(int row, int col)
 
 void Board::setLocation(int row, int col, float x, float y)
 {
-	board[row][col].setLocation(x, y);
+	board[row][col]->setLocation(x, y);
 }
 
 void Board::selectGem(int row, int col)
 {
 	cout << "Gema seleccionada en (" << row << ", " << col << ") del tipo #" << board[row][col].getGemKind() << endl;
-	board[row][col].getSprite()->setColor(Color::Blue);
+	board[row][col]->getSprite()->setColor(Color::Blue);
 	selectedGemCol = col;
 	selectedGemRow = row;
 }
@@ -87,7 +87,7 @@ bool Board::swapping(int row1, int col1, int row2, int col2)
 	if (iceBlockBoard[row1][col1].getIsFrozen() || iceBlockBoard[row2][col2].getIsFrozen())
 	{
 		cout << "La gema esta congelada, no se puede intercambiar." << endl;
-		board[row1][col1].getSprite()->setColor(Color::White);
+		board[row1][col1]->getSprite()->setColor(Color::White);
 		return swapping;
 	}
 
@@ -95,25 +95,25 @@ bool Board::swapping(int row1, int col1, int row2, int col2)
 	{
 		swap(board[row1][col1], board[row2][col2]);
 		cout << "Gemas intercambiadas en: (" << row1 << ", " << col1 << ") y (" << row2 << ", " << col2 << ")." << endl;
-		board[row1][col1].getSprite()->setColor(Color::White);
-		board[row2][col2].getSprite()->setColor(Color::White);
-		board[row1][col1].setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
-		board[row2][col2].setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
+		board[row1][col1]->getSprite()->setColor(Color::White);
+		board[row2][col2]->getSprite()->setColor(Color::White);
+		board[row1][col1]->setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
+		board[row2][col2]->setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
 		swapping = true;
 	}
 	if (!swapping)
 	{
-		board[row1][col1].getSprite()->setColor(Color::White);
+		board[row1][col1]->getSprite()->setColor(Color::White);
 		cout << "Intercambio no realizado." << endl;
 		return swapping;
 	}
 	else if (!match())
 	{
 		swap(board[row1][col1], board[row2][col2]);
-		board[row1][col1].setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
-		board[row2][col2].setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
-		board[row1][col1].getSprite()->setColor(Color::White);
-		board[row2][col2].getSprite()->setColor(Color::White);
+		board[row1][col1]->setLocation(static_cast<float>(BOARD_X_START + col1 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row1 * CELL_SIDE_SIZE));
+		board[row2][col2]->setLocation(static_cast<float>(BOARD_X_START + col2 * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + row2 * CELL_SIDE_SIZE));
+		board[row1][col1]->getSprite()->setColor(Color::White);
+		board[row2][col2]->getSprite()->setColor(Color::White);
 		cout << "Match no encontrado." << endl;
 		swapping = false;
 	}
@@ -133,14 +133,14 @@ bool Board::match()
 		{
 			if (j < BOARD_COLS - 2)
 			{
-				if ((board[i][j].getGemKind() == board[i][j + 1].getGemKind() && board[i][j].getGemKind() == board[i][j + 2].getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
+				if ((board[i][j]->getGemKind() == board[i][j + 1]->getGemKind() && board[i][j]->getGemKind() == board[i][j + 2]->getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
 				{
 					cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
-					board[i][j].mark();
-					board[i][j + 1].mark();
-					board[i][j + 2].mark();
+					board[i][j]->mark();
+					board[i][j + 1]->mark();
+					board[i][j + 2]->mark();
 					matching = true;
-					if (board[i][j].getGemKind() == 0)
+					if (board[i][j]->getGemKind() == 0)
 					{
 						diamondsCleared++;
 					}
@@ -149,20 +149,20 @@ bool Board::match()
 			
 			if (i < BOARD_ROWS - 2)
 			{
-				if ((board[i][j].getGemKind() == board[i + 1][j].getGemKind() && board[i][j].getGemKind() == board[i + 2][j].getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
+				if ((board[i][j]->getGemKind() == board[i + 1][j]->getGemKind() && board[i][j]->getGemKind() == board[i + 2][j]->getGemKind()) && !iceBlockBoard[i][j].getIsFrozen())
 				{
 					cout << "Match encontrado en (" << j << ", " << i << "), (" << j + 1 << ", " << i << "), (" << j + 2 << ", " << i << ")" << endl;
-					board[i][j].mark();
-					board[i + 1][j].mark();
-					board[i + 2][j].mark();
+					board[i][j]->mark();
+					board[i + 1][j]->mark();
+					board[i + 2][j]->mark();
 					matching = true;
-					if (board[i][j].getGemKind() == 0)
+					if (board[i][j]->getGemKind() == 0)
 					{
 						diamondsCleared++;
 					}
 				}				
 			}
-			if (board[i][j].isMarked())
+			if (board[i][j]->isMarked())
 			{
 				totalMatches++;
 			}
@@ -186,7 +186,7 @@ bool Board::hitIceAndGems()
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
-			if (board[i][j].isMarked() && !iceBlockBoard[i][j].getIsFrozen())
+			if (board[i][j]->isMarked() && !iceBlockBoard[i][j].getIsFrozen())
 			{
 				if (i > 0 && iceBlockBoard[i - 1][j].getIsFrozen())
 				{
@@ -247,9 +247,9 @@ bool Board::removeGems()
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
-			if (board[i][j].isMarked())
+			if (board[i][j]->isMarked())
 			{
-				board[i][j].getSprite()->setColor(Color::Transparent);				
+				board[i][j]->getSprite()->setColor(Color::Transparent);				
 			}
 		}
 	}
@@ -265,12 +265,12 @@ void Board::initializeBoard()
 		{
 			for (int j = 0; j < BOARD_COLS; j++)
 			{
-				if (board[i][j].getSprite()->getColor() == Color::Transparent)
+				if (board[i][j]->getSprite()->getColor() == Color::Transparent)
 				{
-					board[i][j] = Gem();
+					board[i][j]->deleteGem();
 					int random = rand() % GEM_TYPE_QUANTITY;
-					board[i][j].setGem(gemTextures[random], random);
-					board[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
+					board[i][j]->setGem(gemTextures[random], random);
+					board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
 					
 				}
 			}
@@ -287,11 +287,11 @@ bool Board::updateBoard()
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
-			if (board[i][j].getSprite()->getColor() == Color::Transparent)
+			if (board[i][j]->getSprite()->getColor() == Color::Transparent)
 			{
 				swap(board[i][j], board[i - 1][j]);
-				board[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-				board[i - 1][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + (i - 1) * CELL_SIDE_SIZE));
+				board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
+				board[i - 1][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + (i - 1) * CELL_SIDE_SIZE));
 				swap(iceBlockBoard[i][j], iceBlockBoard[i - 1][j]);
 				iceBlockBoard[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
 				iceBlockBoard[i - 1][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + (i - 1) * CELL_SIDE_SIZE));
@@ -302,12 +302,12 @@ bool Board::updateBoard()
 
 	for (int j = 0; j < BOARD_COLS; j++)
 	{
-		if (board[0][j].getSprite()->getColor() == Color::Transparent)
+		if (board[0][j]->getSprite()->getColor() == Color::Transparent)
 		{
-			board[0][j] = Gem();
+			board[0][j]->deleteGem();
 			int random = rand() % GEM_TYPE_QUANTITY;
-			board[0][j].setGem(gemTextures[random], random);
-			board[0][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + 0 * CELL_SIDE_SIZE));
+			board[0][j]->setGem(gemTextures[random], random);
+			board[0][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + 0 * CELL_SIDE_SIZE));
 			gravity = true;
 		}
 	}	
