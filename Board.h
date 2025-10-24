@@ -13,6 +13,8 @@ private:
 	Texture iceBlockTexture;
 	Texture bombTexture;
 	int explotingGems(int row, int col, int dRow, int dCol, int kind);
+	bool gravity();
+	bool fillOnTop();
 public:
 	int selectedGemRow;
 	int selectedGemCol;
@@ -23,6 +25,7 @@ public:
 	Board();
 	~Board();
 	Sprite* getGem(int row, int col);
+	Gem* getGemType(int row, int col);
 	Sprite* getIceBlock(int row, int col);
 	int getGemKind(int row, int col);
 	bool getIsFrozen(int row, int col);
@@ -32,10 +35,12 @@ public:
 	bool match();
 	bool hitIceAndGems();
 	int removeGems();
+	void deleteFadedGems();
 	bool bombExplosion();
 	void bombCreation(int row, int col);
 	void initializeBoard();
 	void clearInitialMatches();
 	bool updateBoard();
-	bool isAnimating();
+	bool fallingGems();
+	bool updateAnimations(float dt);
 };

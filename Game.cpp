@@ -59,18 +59,28 @@ void Game::gameMenu()
 void Game::gamePlay()
 {
 	gameBoard.initializeBoard();
+	bool oPlaying = playing;
+	playing = false;
 	gameBoard.clearInitialMatches();
+	playing = oPlaying;
 
 	gameBoard.diamondsCleared = 0;
 	gameBoard.iceBlocksBroken = 0;
 
 	missions();
 
+	currentState = gameState::idle;
+	gameClock.restart();
+
 	while (window->isOpen() && playing)
 	{
-		Font font("assets\\Minecraft.otf");
+		float dt = gameClock.restart().asSeconds();
+		bool isAnimating = gameBoard.updateAnimations(dt);
+		bool stateChanging = false;
 
 		missionProgress();
+
+		Font font("assets\\Minecraft.otf");
 
 		String pointsText = "Puntos: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
@@ -147,80 +157,214 @@ void Game::gamePlay()
 			if (event->is<Event::Closed>())
 				window->close();
 
-			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
+			if (currentState == gameState::idle && !isAnimating)
 			{
-				if (mouseButtonPressed->button == Mouse::Button::Left)
+				if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 				{
-					for (int i = 0; i < BOARD_ROWS; i++)
+					if (mouseButtonPressed->button == Mouse::Button::Left)
 					{
-						for (int j = 0; j < BOARD_COLS; j++)
+						bool gemClicked = false;
+						Vector2i selectingGem;
+
+						for (int i = 0; i < BOARD_ROWS; i++)
 						{
-							if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
-							{								
-								click++;
-								cout << "Click count: " << click << endl;
-								if (click == 1)
+							for (int j = 0; j < BOARD_COLS; j++)
+							{
+								if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
 								{
-									gameBoard.selectGem(i, j);
+									gemClicked = true;
+									selectingGem = Vector2i(i, j);
+									break;									
 								}
-								if (click == 2)
+							}
+							if (gemClicked)	break;
+						}
+
+						if (gemClicked)
+						{
+							click++;
+							cout << "Click count: " << click << endl;
+
+							if (click == 1)
+							{
+								gameBoard.selectGem(selectingGem.x, selectingGem.y);
+								selectedGem = selectingGem;
+							}
+							else if (click == 2) // <<< USAR "ELSE IF"
+							{
+								swappedGem = selectingGem;
+
+								if (selectedGem == swappedGem)
 								{
-									if (gameBoard.swapping(gameBoard.selectedGemRow, gameBoard.selectedGemCol, i, j))
-									{
-										movements--;
-										bool gemsGravity = true;
-
-										while (gemsGravity)
-										{
-											gameBoard.bombExplosion();
-
-											gameBoard.hitIceAndGems();
-
-											int matches = gameBoard.removeGems();
-											points += matches * 10;
-
-											missionProgress();
-
-											if (matches > 0)
-											{
-												while (gameBoard.updateBoard());
-												gemsGravity = gameBoard.match();
-											}
-											else
-											{
-												gemsGravity = false;
-
-											}
-										}
-									}
-									click = 0;
+									gameBoard.getGemType(selectedGem.x, selectedGem.y)->getSprite()->setColor(Color::White);
 								}
-								if (movements == 0)
+								else if (gameBoard.swapping(selectedGem.x, selectedGem.y, swappedGem.x, swappedGem.y))
 								{
-									if (objetiveCompleted)
-									{
-										levelComplete = true;
-										playing = false;										
-										break;
-									}
-									else
-									{
-										gameOver = true;
-										playing = false;
-										break;
-									}									
+									movements--;
+									currentState = gameState::swapping;
+									stateChanging = true;
 								}
+								else
+								{
+									currentState = gameState::idle;
+								}
+								click = 0;
+							}
+
+						}
+
+
+
+						if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
+						{
+							cout << "Boton Salir presionado" << endl;
+							playing = false;
+							window->close();
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (!isAnimating && !stateChanging)
+		{
+			switch (currentState)
+			{
+			case gameState::idle:
+				break;
+
+			case gameState::swapping:
+			{
+				bool bombSwap = (gameBoard.getGemType(selectedGem.x, selectedGem.y)->getType() == Gem::GemType::Bomb || gameBoard.getGemType(swappedGem.x, swappedGem.y)->getType() == Gem::GemType::Bomb);
+				if (bombSwap)
+				{
+					gameBoard.getGemType(selectedGem.x, selectedGem.y)->mark();
+					gameBoard.getGemType(swappedGem.x, swappedGem.y)->mark();
+				}
+				if (gameBoard.match() || bombSwap)
+				{
+					currentState = gameState::checkingMatches;
+					gemToBomb = true;
+				}
+				else
+				{
+					cout << "Match no encontrado. Deshaciendo." << endl;
+					gameBoard.swapping(selectedGem.x, selectedGem.y, swappedGem.x, swappedGem.y);
+					movements++;
+					currentState = gameState::checkingSwaps;
+				}
+				click == 0;
+			}
+			break;
+
+			case gameState::checkingSwaps:
+			{
+				currentState = gameState::idle;
+				break;
+			}
+			case gameState::checkingMatches:
+			{
+				gameBoard.bombExplosion();
+				gameBoard.hitIceAndGems();
+
+				if (gemToBomb)
+				{
+					if (gameBoard.getGemType(selectedGem.x, selectedGem.y) != nullptr && gameBoard.getGemType(selectedGem.x, selectedGem.y)->isMarked())
+					{
+						gameBoard.bombCreation(selectedGem.x, selectedGem.y);
+					}
+					if (gameBoard.getGemType(swappedGem.x, swappedGem.y) != nullptr && gameBoard.getGemType(swappedGem.x, swappedGem.y)->isMarked())
+					{
+						gameBoard.bombCreation(swappedGem.x, swappedGem.y);
+					}
+					gemToBomb = false;
+				}
+
+				for (int i = 0; i < BOARD_ROWS; i++)
+				{
+					for (int j = 0; j < BOARD_COLS; j++)
+					{
+						if (gameBoard.getGemType(i, j) != nullptr && gameBoard.getGemType(i, j)->isMarked())
+						{
+							gameBoard.bombCreation(i, j);
+						}
+					}
+				}
+
+				int matches = gameBoard.removeGems();
+				points += matches * 10;
+				missionProgress();
+
+				if (matches > 0)
+				{
+					currentState = gameState::fading;
+				}
+				else if (gameBoard.match())
+				{
+					currentState = gameState::checkingMatches;
+				}
+				else
+				{
+					currentState = gameState::idle;
+
+					if (movements == 0)
+					{
+						if (objetiveCompleted)
+						{
+							levelComplete = true;
+							playing = false;
+						}
+						else
+						{
+							gameOver = true;
+							playing = false;
+						}
+					}
+				}
+				break;
+			}
+			case gameState::fading:
+			{
+				gameBoard.deleteFadedGems();
+				gameBoard.fallingGems();
+				currentState = gameState::falling;
+				break;
+			}
+			case gameState::falling:
+			{
+				bool fallGems = gameBoard.fallingGems();
+
+				if (fallGems)
+				{
+					currentState = gameState::falling;
+				}
+				else
+				{
+					if (gameBoard.match())
+					{
+						currentState = gameState::checkingMatches;
+					}
+					else
+					{
+						currentState = gameState::idle;
+
+						if (movements == 0)
+						{
+							if (objetiveCompleted)
+							{
+								levelComplete = true;
+								playing = false;
+							}
+							else
+							{
+								gameOver = true;
+								playing = false;
 							}
 						}
 					}
-					if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
-					{
-						cout << "Boton Salir presionado" << endl;
-						playing = false;
-						window->close();
-						break;
-					}
 				}
+				break;
+			}
 			}
 		}
 		window->display();
@@ -526,7 +670,11 @@ Game::Game()
 	click = 0, points = 0;
 	movements = 20;
 	missionType = 0;
-	int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
+	
+	currentState = gameState::idle;
+	selectedGem = Vector2i(-1, -1);
+	swappedGem = Vector2i(-1, -1);
+	gemToBomb = false;
 
 	gameMenu();
 	while (playing || levelComplete || gameOver)

@@ -21,6 +21,12 @@ private:
 	String missionText;
 	String progressText;
 	String finalProgressText;
+	enum class gameState { idle, swapping, checkingSwaps, checkingMatches, fading, falling };
+	gameState currentState;
+	Clock gameClock;
+	Vector2i selectedGem;
+	Vector2i swappedGem;
+	bool gemToBomb;
 public:
 	Game();
 	~Game() { delete window; }
