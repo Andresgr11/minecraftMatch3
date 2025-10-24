@@ -35,7 +35,11 @@ void Game::gameMenu()
 		while (const optional event = window->pollEvent())
 		{
 			if (event->is<Event::Closed>())
+			{
 				window->close();
+				menu = false;
+			}
+				
 
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
@@ -142,7 +146,11 @@ void Game::gamePlay()
 		while (const optional event = window->pollEvent())
 		{
 			if (event->is<Event::Closed>())
+			{
 				window->close();
+				playing = false;
+			}
+				
 
 			if (currentState == gameState::idle && !isAnimating)
 			{
@@ -432,7 +440,11 @@ void Game::gameWin()
 		while (const optional event = window->pollEvent())
 		{
 			if (event->is<Event::Closed>())
+			{
 				window->close();
+				levelComplete = false;
+			}
+				
 
 			Vector2i pos = Mouse::getPosition(*window);
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
@@ -540,7 +552,11 @@ void Game::endGame()
 		while (const optional event = window->pollEvent())
 		{
 			if (event->is<Event::Closed>())
+			{
 				window->close();
+				gameOver = false;
+			}
+				
 
 			Vector2i pos = Mouse::getPosition(*window);
 
