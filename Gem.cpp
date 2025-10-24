@@ -25,15 +25,17 @@ void Gem::deleteGem()
 	}
 }
 
-void Gem::draw()
+void Gem::draw(RenderWindow& window)
 {
-
+	if (gemSprite != nullptr)
+	{
+		window.draw(*gemSprite);
+	}
 }
 
-void Gem::onMatch()
+void Gem::onMatch(Board* board, int row, int col)
 {
-
-
+	fadeOut();
 }
 
 void Gem::setGem(Texture& gtexture, int gKind)
@@ -106,7 +108,7 @@ bool Gem::update(float dt)
 			alpha = 0.0f;
 			isFading = false;
 		}
-		gemSprite->setColor(Color(255, 255, 255, (uint8_t)alpha));
+		gemSprite->setColor(Color(255, 255, 255, static_cast<uint8_t>(alpha)));
 	}
 
 	return animating;

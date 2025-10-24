@@ -1,4 +1,7 @@
 #include "Board.h"
+#include "Gem.h"
+#include "normalGem.h" 
+#include "bombGem.h"
 
 Board::Board()
 {
@@ -238,34 +241,6 @@ bool Board::hitIceAndGems()
 	return hitting;
 }
 
-int Board::removeGems()
-{
-	int matchesFound = 0;
-	totalMatches = 0;
-
-	for (int i = 0; i < BOARD_ROWS; i++)
-	{
-		for (int j = 0; j < BOARD_COLS; j++)
-		{
-			if (board[i][j]->isMarked())
-			{
-				if (board[i][j]->getSprite()->getColor().a == 255)
-				{
-					matchesFound++;
-
-					if (board[i][j]->getGemKind() == 0)
-					{
-						diamondsCleared++;
-					}
-					board[i][j]->fadeOut();
-				}
-			}
-		}
-	}
-	totalMatches = matchesFound;
-	return matchesFound;
-}
-
 void Board::deleteFadedGems()
 {
 	for (int i = 0; i < BOARD_ROWS; i++)
@@ -279,6 +254,51 @@ void Board::deleteFadedGems()
 			}
 		}
 	}
+}
+
+int Board::processMatches()
+{
+	int matchesFound = 0;
+	totalMatches = 0;
+
+	bool bombExploting = true;
+	while (bombExploting)
+	{
+		bombExploting = false;
+		
+	}
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			if (board[i][j] != nullptr && board[i][j]->isMarked() && board[i][j]->getType() == Gem::GemType::Bomb && board[i][j]->getSprite()->getColor().a == 255)
+			{
+				board[i][j]->onMatch(this, i, j);
+				matchesFound++;
+				bombExploting = true;
+			}
+		}
+	}
+	
+	for (int i = 0; i < BOARD_ROWS; i++)
+	{
+		for (int j = 0; j < BOARD_COLS; j++)
+		{
+			if (board[i][j] != nullptr && board[i][j]->isMarked() && board[i][j]->getType() == Gem::GemType::Normal && board[i][j]->getSprite()->getColor().a == 255)
+			{
+				board[i][j]->onMatch(this, i, j);
+				matchesFound++;
+
+				if (board[i][j]->getGemKind() == 0)
+				{
+					diamondsCleared++;
+				}
+			}
+		}
+	}
+
+	totalMatches = matchesFound;
+	return matchesFound;
 }
 
 int Board::explotingGems(int row, int col, int dRow, int dCol, int kind)
@@ -327,34 +347,22 @@ void Board::bombCreation(int row, int col)
 	}
 }
 
-bool Board::bombExplosion()
+void Board::drawBoard(RenderWindow& window)
 {
-	bool exploding = false;
-
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
-			if (board[i][j] != nullptr && board[i][j]->isMarked() && board[i][j]->getType() == Gem::GemType::Bomb && board[i][j]->getSprite()->getColor().a == 255)
+			if (board[i][j] != nullptr)
 			{
-				cout << "TNT explotandose en (" << i << ", " << j << ")." << endl;
-				exploding = true;
-				board[i][j]->fadeOut();
-
-				for (int row = i - 1; row <= i + 1; row++)
-				{
-					for (int col = j - 1; col <= j + 1; col++)
-					{
-						if (row >= 0 && row < BOARD_ROWS && col >= 0 && col < BOARD_COLS && board[row][col] != nullptr)
-						{
-							board[row][col]->mark();
-						}
-					}
-				}
+				board[i][j]->draw(window);
+			}
+			if (iceBlockBoard[i][j].getIsFrozen() && iceBlockBoard[i][j].getSprite() != nullptr)
+			{
+				window.draw(*iceBlockBoard[i][j].getSprite());
 			}
 		}
 	}
-	return exploding;
 }
 
 bool Board::gravity()

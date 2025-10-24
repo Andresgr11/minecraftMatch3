@@ -135,20 +135,7 @@ void Game::gamePlay()
 		window->draw(exitButton);
 		window->draw(exitText);
 
-		for (int i = 0; i < BOARD_ROWS; i++)
-		{
-			for (int j = 0; j < BOARD_COLS; j++)
-			{
-				if (gameBoard.getGem(i, j) != nullptr)
-				{
-					window->draw(*gameBoard.getGem(i, j));
-				}
-				if (gameBoard.getIsFrozen(i,j) && gameBoard.getIceBlock(i, j) != nullptr)
-				{
-					window->draw(*gameBoard.getIceBlock(i, j));
-				}
-			}
-		}
+		gameBoard.drawBoard(*window);
 
 		Vector2i pos = Mouse::getPosition(*window);
 
@@ -253,7 +240,7 @@ void Game::gamePlay()
 					movements++;
 					currentState = gameState::checkingSwaps;
 				}
-				click == 0;
+				click = 0;
 			}
 			break;
 
@@ -264,7 +251,6 @@ void Game::gamePlay()
 			}
 			case gameState::checkingMatches:
 			{
-				gameBoard.bombExplosion();
 				gameBoard.hitIceAndGems();
 
 				if (gemToBomb)
@@ -291,7 +277,7 @@ void Game::gamePlay()
 					}
 				}
 
-				int matches = gameBoard.removeGems();
+				int matches = gameBoard.processMatches();
 				points += matches * 10;
 				missionProgress();
 

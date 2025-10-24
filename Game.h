@@ -1,6 +1,7 @@
 #pragma once
 #include "Board.h"
 #include "iceBlock.h"
+#include "Gem.h"
 
 class Game
 {

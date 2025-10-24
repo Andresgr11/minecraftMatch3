@@ -1,8 +1,11 @@
 #pragma once
-#include "Gem.h"
 #include "iceBlock.h"
-#include "normalGem.h"
-#include "bombGem.h"
+#include <SFML/Graphics.hpp>
+
+using namespace std;
+using namespace sf;
+
+class Gem;
 
 class Board
 {
@@ -34,10 +37,10 @@ public:
 	bool swapping(int row1, int col1, int row2, int col2);
 	bool match();
 	bool hitIceAndGems();
-	int removeGems();
 	void deleteFadedGems();
-	bool bombExplosion();
+	int processMatches();
 	void bombCreation(int row, int col);
+	void drawBoard(RenderWindow& window);
 	void initializeBoard();
 	void clearInitialMatches();
 	bool updateBoard();
