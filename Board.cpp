@@ -137,9 +137,9 @@ bool Board::match()
 				}
 
 				bool gemsMatched = (board[i][j]->getGemKind() == board[i][j + 1]->getGemKind() && board[i][j]->getGemKind() == board[i][j + 2]->getGemKind());
-
 				bool gemsUnfrozen = (!iceBlockBoard[i][j].getIsFrozen() && !iceBlockBoard[i][j + 1].getIsFrozen() && !iceBlockBoard[i][j + 2].getIsFrozen());
 				bool matchFounded = false;
+
 				if (gemsMatched && gemsUnfrozen)
 				{
 					board[i][j]->mark();
@@ -147,7 +147,6 @@ bool Board::match()
 					board[i][j + 2]->mark();
 					matching = true;
 					cout << "Match encontrado en (" << i << ", " << j << "), (" << i << ", " << j + 1 << "), (" << i << ", " << j + 2 << ")" << endl;
-
 				}
 			}
 
@@ -159,10 +158,9 @@ bool Board::match()
 				}
 
 				bool gemsMatched = (board[i][j]->getGemKind() == board[i + 1][j]->getGemKind() && board[i][j]->getGemKind() == board[i + 2][j]->getGemKind());
-
 				bool gemsUnfrozen = (!iceBlockBoard[i][j].getIsFrozen() && !iceBlockBoard[i + 1][j].getIsFrozen() && !iceBlockBoard[i + 2][j].getIsFrozen());
-
 				bool matchFounded = false;
+
 				if (gemsMatched && gemsUnfrozen)
 				{
 					board[i][j]->mark();
@@ -329,7 +327,6 @@ void Board::bombCreation(int row, int col)
 		return;
 	}
 	int kind = board[row][col]->getGemKind();
-
 	int horizontal = 1 + explotingGems(row, col, 0, 1, kind) + explotingGems(row, col, 0, -1, kind);
 	int vertical = 1 + explotingGems(row, col, 1, 0, kind) + explotingGems(row, col, -1, 0, kind);
 
@@ -388,11 +385,9 @@ bool Board::gravity()
 				{
 					swap(board[emptyRow][j], board[i][j]);
 					swap(iceBlockBoard[emptyRow][j], iceBlockBoard[i][j]);
-
 					board[emptyRow][j]->move(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + emptyRow * CELL_SIDE_SIZE));
 					iceBlockBoard[emptyRow][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + emptyRow * CELL_SIDE_SIZE));
 					iceBlockBoard[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-
 					gemsMoving = true;
 					break;
 				}

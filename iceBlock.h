@@ -27,4 +27,3 @@ public:
 	void setBlock(Texture& gtexture, int health = 2);
 	bool hit();
 };
-

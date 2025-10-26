@@ -38,8 +38,7 @@ void Game::gameMenu()
 			{
 				window->close();
 				menu = false;
-			}
-				
+			}				
 
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
@@ -150,7 +149,6 @@ void Game::gamePlay()
 				window->close();
 				playing = false;
 			}
-				
 
 			if (currentState == gameState::idle && !isAnimating)
 			{
@@ -556,7 +554,6 @@ void Game::endGame()
 				window->close();
 				gameOver = false;
 			}
-				
 
 			Vector2i pos = Mouse::getPosition(*window);
 
