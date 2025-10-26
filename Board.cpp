@@ -10,9 +10,7 @@ Board::Board()
 	gemTextures[2].loadFromFile("assets\\03.png");
 	gemTextures[3].loadFromFile("assets\\04.png");
 	gemTextures[4].loadFromFile("assets\\05.png");
-
 	iceBlockTexture.loadFromFile("assets\\ice.png");
-
 	bombTexture.loadFromFile("assets\\tnt.png");
 
 	for (int i = 0; i < BOARD_ROWS; i++)
@@ -364,7 +362,7 @@ void Board::drawBoard(RenderWindow& window)
 
 bool Board::gravity()
 {
-	bool gemsMoving = false;
+	bool gemsGravity = false;
 	for (int j = 0; j < BOARD_COLS; j++)
 	{
 		int emptyRow = -1;
@@ -388,13 +386,13 @@ bool Board::gravity()
 					board[emptyRow][j]->move(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + emptyRow * CELL_SIDE_SIZE));
 					iceBlockBoard[emptyRow][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + emptyRow * CELL_SIDE_SIZE));
 					iceBlockBoard[i][j].setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-					gemsMoving = true;
+					gemsGravity = true;
 					break;
 				}
 			}
 		}
 	}
-	return gemsMoving;
+	return gemsGravity;
 }
 
 bool Board::fillOnTop()
