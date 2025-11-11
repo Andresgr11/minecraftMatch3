@@ -1,13 +1,22 @@
 #pragma once
+#include <SFML/Audio.hpp>
 #include "Board.h"
 #include "iceBlock.h"
 #include "Gem.h"
+
 
 class Game
 {
 private:
 	RenderWindow* window;
 	Board gameBoard;
+	Music backgroundMusic[4];
+	SoundBuffer audioBuffers[5];
+	Sound* iceBreak;
+	Sound* tntExplosion;
+	Sound* missionCompleteSound;
+	Sound* levelCompleteSound;
+	Sound* death;
 	bool menu;
 	bool playing;
 	bool levelComplete;
@@ -30,10 +39,13 @@ private:
 	bool gemToBomb;
 public:
 	Game();
-	~Game() { delete window; }
+	~Game() {
+		delete window; delete death; delete iceBreak; delete tntExplosion; delete missionCompleteSound; delete levelCompleteSound;
+	}
 	int click;
 	int points;
 	int movements;
 	int missionType;
+	int musicType;
 	bool objetiveCompleted;
 };

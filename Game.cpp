@@ -1,7 +1,66 @@
 #include "Game.h"
 
+Game::Game()
+{
+	playing = false;
+	levelComplete = false;
+	gameOver = false;
+	objetiveCompleted = false;
+	menu = true;
+	window = new RenderWindow(VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), WINDOW_TITLE);
+	window->setFramerateLimit(FPS);
+
+	click = 0, points = 0;
+	movements = 20;
+	missionType = 0;
+	musicType = rand() % 4;
+
+	backgroundMusic[0].openFromFile("assets\\sweden.mp3");
+	backgroundMusic[1].openFromFile("assets\\minecraft.mp3");
+	backgroundMusic[2].openFromFile("assets\\haggstrom.mp3");
+	backgroundMusic[3].openFromFile("assets\\wethands.mp3");
+
+	audioBuffers[0].loadFromFile("assets\\icebreak.mp3");
+	audioBuffers[1].loadFromFile("assets\\tntexplosion.mp3");
+	audioBuffers[2].loadFromFile("assets\\endermandeath.mp3");
+	audioBuffers[3].loadFromFile("assets\\missioncomplete.mp3");
+	audioBuffers[4].loadFromFile("assets\\levelcomplete.mp3");
+
+	iceBreak = new Sound(audioBuffers[0]);
+	tntExplosion = new Sound(audioBuffers[1]);
+	death = new Sound(audioBuffers[2]);
+	missionCompleteSound = new Sound(audioBuffers[3]);
+	levelCompleteSound = new Sound(audioBuffers[4]);
+
+	currentState = gameState::idle;
+	selectedGem = Vector2i(-1, -1);
+	swappedGem = Vector2i(-1, -1);
+	gemToBomb = false;
+
+	gameMenu();
+	while (playing || levelComplete || gameOver)
+	{
+		if (playing)
+		{
+			gamePlay();
+
+		}
+		else if (levelComplete)
+		{
+			gameWin();
+		}
+		else if (gameOver)
+		{
+			endGame();
+		}
+	}
+}
+
 void Game::gameMenu()
 {
+	backgroundMusic[musicType].play();
+	backgroundMusic[musicType].setLooping(true);
+
 	while (window->isOpen() && menu)
 	{
 		Font font("assets\\Minecraft.otf");
@@ -47,6 +106,7 @@ void Game::gameMenu()
 					if (startButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton Iniciar presionado" << endl;
+						backgroundMusic[musicType].stop();
 						playing = true;
 						menu = false;
 						break;
@@ -74,6 +134,10 @@ void Game::gamePlay()
 
 	currentState = gameState::idle;
 	gameClock.restart();
+
+	musicType = rand() % 4;
+	backgroundMusic[musicType].play();
+	backgroundMusic[musicType].setLooping(true);
 
 	while (window->isOpen() && playing)
 	{
@@ -183,7 +247,7 @@ void Game::gamePlay()
 								gameBoard.selectGem(selectingGem.x, selectingGem.y);
 								selectedGem = selectingGem;
 							}
-							else if (click == 2) // <<< USAR "ELSE IF"
+							else if (click == 2)
 							{
 								swappedGem = selectingGem;
 
@@ -205,9 +269,6 @@ void Game::gamePlay()
 							}
 
 						}
-
-
-
 						if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
 						{
 							cout << "Boton Salir presionado" << endl;
@@ -233,10 +294,12 @@ void Game::gamePlay()
 				{
 					gameBoard.getGemType(selectedGem.x, selectedGem.y)->mark();
 					gameBoard.getGemType(swappedGem.x, swappedGem.y)->mark();
+					tntExplosion->play();
 				}
 				if (gameBoard.match() || bombSwap)
 				{
 					currentState = gameState::checkingMatches;
+					
 					gemToBomb = true;
 				}
 				else
@@ -257,8 +320,10 @@ void Game::gamePlay()
 			}
 			case gameState::checkingMatches:
 			{
-				gameBoard.hitIceAndGems();
-
+				if (gameBoard.hitIceAndGems())
+				{
+					iceBreak->play();
+				}
 				if (gemToBomb)
 				{
 					if (gameBoard.getGemType(selectedGem.x, selectedGem.y) != nullptr && gameBoard.getGemType(selectedGem.x, selectedGem.y)->isMarked())
@@ -349,6 +414,7 @@ void Game::gamePlay()
 							}
 							else
 							{
+								death->play();
 								gameOver = true;
 								playing = false;
 							}
@@ -443,7 +509,6 @@ void Game::gameWin()
 				levelComplete = false;
 			}
 				
-
 			Vector2i pos = Mouse::getPosition(*window);
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
@@ -457,6 +522,7 @@ void Game::gameWin()
 						gameBoard.diamondsCleared = 0;
 						gameBoard.iceBlocksBroken = 0;
 						missionType++;
+						backgroundMusic[musicType].stop();
 						playing = true;
 						levelComplete = false;
 						break;
@@ -545,7 +611,7 @@ void Game::endGame()
 		window->draw(restartButton);
 		window->draw(restartText);
 		window->draw(exitButton);
-		window->draw(exitText);
+		window->draw(exitText);	
 
 		while (const optional event = window->pollEvent())
 		{
@@ -554,7 +620,7 @@ void Game::endGame()
 				window->close();
 				gameOver = false;
 			}
-
+			
 			Vector2i pos = Mouse::getPosition(*window);
 
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
@@ -568,6 +634,7 @@ void Game::endGame()
 						movements = 20;
 						gameBoard.diamondsCleared = 0;
 						gameBoard.iceBlocksBroken = 0;
+						backgroundMusic[musicType].stop();
 						playing = true;
 						gameOver = false;
 						break;
@@ -616,8 +683,8 @@ void Game::missionProgress()
 		if (gameBoard.iceBlocksBroken >= 2)
 		{
 			objetiveCompleted = true;
-			finalProgressText = "Objetivo cumplido.";
-			movements = 0;		
+			finalProgressText = "Objetivo cumplido.";	
+			levelCompleteSound->play();
 		}
 		else
 		{
@@ -631,8 +698,8 @@ void Game::missionProgress()
 		if (points >= 1500)
 		{
 			objetiveCompleted = true;
-			finalProgressText = "Objetivo cumplido.";
-			movements = 0;		
+			finalProgressText = "Objetivo cumplido.";	
+			levelCompleteSound->play();
 		}
 		else
 		{
@@ -647,49 +714,11 @@ void Game::missionProgress()
 		{
 			objetiveCompleted = true;
 			finalProgressText = "Objetivo cumplido.";
-			movements = 0;
+			levelCompleteSound->play();
 		}
 		else
 		{
 			finalProgressText = "Objetivo no cumplido.";
-		}
-	}
-}
-
-Game::Game()
-{
-	playing = false;
-	levelComplete = false;
-	gameOver = false;
-	objetiveCompleted = false;
-	menu = true;
-	window = new RenderWindow(VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), WINDOW_TITLE);
-	window->setFramerateLimit(FPS);
-
-	click = 0, points = 0;
-	movements = 20;
-	missionType = 0;
-	
-	currentState = gameState::idle;
-	selectedGem = Vector2i(-1, -1);
-	swappedGem = Vector2i(-1, -1);
-	gemToBomb = false;
-
-	gameMenu();
-	while (playing || levelComplete || gameOver)
-	{
-		if (playing)
-		{
-			gamePlay();
-
-		}
-		else if (levelComplete)
-		{
-			gameWin();
-		}
-		else if (gameOver)
-		{
-			endGame();
 		}
 	}
 }

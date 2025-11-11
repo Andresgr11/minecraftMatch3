@@ -1,6 +1,7 @@
 #pragma once
 #include "iceBlock.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 using namespace std;
 using namespace sf;

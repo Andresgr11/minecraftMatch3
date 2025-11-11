@@ -1,8 +1,11 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Board.h"
 #include "constants.h"
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
