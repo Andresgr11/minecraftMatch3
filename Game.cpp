@@ -290,6 +290,7 @@ void Game::gamePlay()
 			case gameState::swapping:
 			{
 				bool bombSwap = (gameBoard.getGemType(selectedGem.x, selectedGem.y)->getType() == Gem::GemType::Bomb || gameBoard.getGemType(swappedGem.x, swappedGem.y)->getType() == Gem::GemType::Bomb);
+				missionCompleteSound->play();
 				if (bombSwap)
 				{
 					gameBoard.getGemType(selectedGem.x, selectedGem.y)->mark();
@@ -298,8 +299,7 @@ void Game::gamePlay()
 				}
 				if (gameBoard.match() || bombSwap)
 				{
-					currentState = gameState::checkingMatches;
-					
+					currentState = gameState::checkingMatches;					
 					gemToBomb = true;
 				}
 				else
@@ -359,6 +359,7 @@ void Game::gamePlay()
 				else if (gameBoard.match())
 				{
 					currentState = gameState::checkingMatches;
+					missionCompleteSound->play();
 				}
 				else
 				{
@@ -400,6 +401,7 @@ void Game::gamePlay()
 					if (gameBoard.match())
 					{
 						currentState = gameState::checkingMatches;
+						missionCompleteSound->play();
 					}
 					else
 					{

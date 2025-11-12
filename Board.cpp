@@ -49,7 +49,7 @@ Sprite* Board::getGem(int row, int col)
 	return board[row][col]->getSprite();
 }
 
-Gem* Board::getGemType(int row, int col)
+Gem* Board::getGemType(int row, int col) const
 {
 	if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS)
 	{

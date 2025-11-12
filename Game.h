@@ -28,9 +28,9 @@ private:
 	void missions();
 	void missionProgress();
 	Board iceBlocks;
-	String missionText;
-	String progressText;
-	String finalProgressText;
+	string missionText;
+	string progressText;
+	string finalProgressText;
 	enum class gameState { idle, swapping, checkingSwaps, checkingMatches, fading, falling };
 	gameState currentState;
 	Clock gameClock;

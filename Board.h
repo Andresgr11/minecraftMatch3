@@ -29,7 +29,7 @@ public:
 	Board();
 	~Board();
 	Sprite* getGem(int row, int col);
-	Gem* getGemType(int row, int col);
+	Gem* getGemType(int row, int col) const;
 	Sprite* getIceBlock(int row, int col);
 	int getGemKind(int row, int col);
 	bool getIsFrozen(int row, int col);
