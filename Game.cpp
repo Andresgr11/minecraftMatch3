@@ -14,7 +14,7 @@ Game::Game()
 
 	click = 0, points = 0;
 	movements = 20;
-	missionType = 0;
+	missionType = 4;
 	musicType = rand() % 4;
 
 	backgroundMusic[0].openFromFile("assets\\sweden.mp3");
@@ -123,8 +123,41 @@ void Game::gameMenu()
 
 void Game::gamePlay()
 {
-	int randomRows = rand() % 3 + 8;
-	int randomCols = rand() % 3 + 8;
+	if (missionType > 4)
+	{
+		missionType = 0;
+	}
+
+	int randomRows;
+	int randomCols;
+
+	switch (missionType)
+	{
+	case 0:
+		randomRows = 8;
+		randomCols = 8;
+		break;
+	case 1:
+		randomRows = 10;
+		randomCols = 10;
+		break;
+	case 2:
+		randomRows = 9;
+		randomCols = 8;
+		break;
+	case 3:
+		randomRows = 10;
+		randomCols = 9;
+		break;
+	case 4:
+		randomRows = 8;
+		randomCols = 10;
+		break;
+	default:
+		randomRows = 8;
+		randomCols = 8;
+		break;
+	}
 	gameBoard.initializeBoard(randomRows, randomCols);
 
 	bool oPlaying = playing;
@@ -134,6 +167,7 @@ void Game::gamePlay()
 
 	gameBoard.diamondsCleared = 0;
 	gameBoard.iceBlocksBroken = 0;
+	gameBoard.fiveGemMatch = 0;
 
 	missions();
 
@@ -331,14 +365,7 @@ void Game::gamePlay()
 				}
 				if (gemToBomb)
 				{
-					if (gameBoard.getGemType(selectedGem.x, selectedGem.y) != nullptr && gameBoard.getGemType(selectedGem.x, selectedGem.y)->isMarked())
-					{
-						gameBoard.bombCreation(selectedGem.x, selectedGem.y);
-					}
-					if (gameBoard.getGemType(swappedGem.x, swappedGem.y) != nullptr && gameBoard.getGemType(swappedGem.x, swappedGem.y)->isMarked())
-					{
-						gameBoard.bombCreation(swappedGem.x, swappedGem.y);
-					}
+					
 					gemToBomb = false;
 				}
 
@@ -675,9 +702,13 @@ void Game::missions()
 	{
 		missionText = "Elimina 30 diamantes.";
 	}
-	else if (missionType > 2)
+	else if (missionType == 3)
 	{
-		missionType = 0;
+		missionText = "xD";
+	}
+	else if (missionType == 4)
+	{
+		missionText = "Crea 2 matches de 5 gemas.";
 	}
 }
 
@@ -718,6 +749,25 @@ void Game::missionProgress()
 		progressText = to_string(gameBoard.diamondsCleared) + "/30";
 
 		if (gameBoard.diamondsCleared >= 30)
+		{
+			objetiveCompleted = true;
+			finalProgressText = "Objetivo cumplido.";
+			levelCompleteSound->play();
+		}
+		else
+		{
+			finalProgressText = "Objetivo no cumplido.";
+		}
+	}
+	else if (missionType == 3)
+	{
+		
+	}
+	else if (missionType == 4)
+	{
+		progressText = to_string(gameBoard.fiveGemMatch) + "/2";
+
+		if (gameBoard.fiveGemMatch >= 2)
 		{
 			objetiveCompleted = true;
 			finalProgressText = "Objetivo cumplido.";

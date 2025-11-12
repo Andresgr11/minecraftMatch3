@@ -13,15 +13,8 @@ Board::Board()
 	iceBlockTexture.loadFromFile("assets\\ice.png");
 	bombTexture.loadFromFile("assets\\tnt.png");
 
-	/*
-	for (int i = 0; i < BOARD_ROWS; i++)
-	{
-		for (int j = 0; j < BOARD_COLS; j++)
-		{
-			board[i][j] = nullptr;
-		}
-	}	
-	*/	
+	board = nullptr;
+	iceBlockBoard = nullptr;
 
 	boardRows = 0;
 	boardCols = 0;
@@ -30,17 +23,31 @@ Board::Board()
 	totalMatches = 0;
 	diamondsCleared = 0;
 	iceBlocksBroken = 0;
+	fiveGemMatch = 0;
 	hitCounter = 0;
 }
 
 Board::~Board()
 {
-	for (int i = 0; i < boardRows; i++)
+	if (board != nullptr)
 	{
-		for (int j = 0; j < boardCols; j++)
+		for (int i = 0; i < boardRows; i++)
 		{
-			delete board[i][j];
+			for (int j = 0; j < boardCols; j++)
+			{
+				delete board[i][j];
+			}
+			delete[] board[i];
 		}
+		delete[] board;
+	}
+	if (iceBlockBoard != nullptr)
+	{
+		for (int i = 0; i < boardRows; i++)
+		{
+			delete[] iceBlockBoard[i];
+		}
+		delete[] iceBlockBoard;
 	}
 }
 
@@ -56,6 +63,10 @@ Sprite* Board::getGem(int row, int col)
 Gem* Board::getGemType(int row, int col) const
 {
 	if (row < 0 || row >= boardRows || col < 0 || col >= boardCols)
+	{
+		return nullptr;
+	}
+	if (board == nullptr || board[row] == nullptr)
 	{
 		return nullptr;
 	}
@@ -313,7 +324,7 @@ int Board::explotingGems(int row, int col, int dRow, int dCol, int kind)
 		{
 			break;
 		}
-		if (board[newRow][newCol] == nullptr || !board[newRow][newCol]->isMarked() || board[newRow][newCol]->getGemKind() != kind)
+		if (board[newRow][newCol] == nullptr || board[newRow][newCol]->getGemKind() != kind)
 		{
 			break;
 		}
@@ -331,6 +342,15 @@ void Board::bombCreation(int row, int col)
 	int kind = board[row][col]->getGemKind();
 	int horizontal = 1 + explotingGems(row, col, 0, 1, kind) + explotingGems(row, col, 0, -1, kind);
 	int vertical = 1 + explotingGems(row, col, 1, 0, kind) + explotingGems(row, col, -1, 0, kind);
+
+	if (horizontal >= 5 && explotingGems(row, col, 0, -1, kind) == 0)
+	{
+		fiveGemMatch++;
+	}
+	else if (vertical >= 5 && explotingGems(row, col, -1, 0, kind) == 0)
+	{
+		fiveGemMatch++;
+	}
 
 	if (horizontal >= 4 || vertical >= 4)
 	{
@@ -421,21 +441,45 @@ bool Board::fillOnTop()
 
 void Board::initializeBoard(int row, int col)
 {
-	for (int i = 0; i < boardRows; i++)
+	if (board != nullptr)
 	{
-		for (int j = 0; j < boardCols; j++)
+		for (int i = 0; i < boardRows; i++)
 		{
-			delete board[i][j];
+			for (int j = 0; j < boardCols; j++)
+			{
+				delete board[i][j];
+			}
+			delete[] board[i];
 		}
+		delete[] board;
 	}
-	board.clear();
-	iceBlockBoard.clear();
+	if (iceBlockBoard != nullptr)
+	{
+		for (int i = 0; i < boardRows; i++)
+		{
+			delete[] iceBlockBoard[i];
+		}
+		delete[] iceBlockBoard;
+	}
 
 	boardRows = row;
 	boardCols = col;
 
-	board.resize(boardRows, vector<Gem*>(boardCols, nullptr));
-	iceBlockBoard.resize(boardRows, vector<iceBlock>(boardCols));
+	board = new Gem**[boardRows];
+	for (int i = 0; i < boardRows; i++)
+	{
+		board[i] = new Gem * [boardCols];
+		for (int j = 0; j < boardCols; j++)
+		{
+			board[i][j] = nullptr;
+		}
+	}
+
+	iceBlockBoard = new iceBlock*[boardRows];
+	for (int i = 0; i < boardRows; i++)
+	{
+		iceBlockBoard[i] = new iceBlock[boardCols];
+	}
 
 	int random = 0;
 
@@ -443,15 +487,10 @@ void Board::initializeBoard(int row, int col)
 	{
 		for (int j = 0; j < boardCols; j++)
 		{
-			if (board[i][j] != nullptr)
-			{
-				delete board[i][j];
-			}
 			board[i][j] = new normalGem();
 			random = rand() % GEM_TYPE_QUANTITY;
 			board[i][j]->setGem(gemTextures[random], random);
 			board[i][j]->setLocation(static_cast<float>(BOARD_X_START + j * CELL_SIDE_SIZE), static_cast<float>(BOARD_Y_START + i * CELL_SIDE_SIZE));
-
 			if (iceBlockBoard[i][j].getIsFrozen())
 			{
 				iceBlockBoard[i][j].setIsFrozen(false);

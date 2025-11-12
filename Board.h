@@ -2,7 +2,6 @@
 #include "iceBlock.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <vector>
 
 using namespace std;
 using namespace sf;
@@ -12,9 +11,9 @@ class Gem;
 class Board
 {
 private:
-	vector<vector<Gem*>> board;
+	Gem*** board;
 	Texture gemTextures[GEM_TYPE_QUANTITY];
-	vector<vector<iceBlock>> iceBlockBoard;
+	iceBlock** iceBlockBoard;
 	Texture iceBlockTexture;
 	Texture bombTexture;
 	int explotingGems(int row, int col, int dRow, int dCol, int kind);
@@ -29,6 +28,7 @@ public:
 	int diamondsCleared;
 	int iceBlocksBroken;
 	int hitCounter;
+	int fiveGemMatch;
 	Board();
 	~Board();
 	Sprite* getGem(int row, int col);
