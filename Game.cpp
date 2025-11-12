@@ -2,6 +2,8 @@
 
 Game::Game()
 {
+	srand(static_cast<unsigned int>(time(0)));
+
 	playing = false;
 	levelComplete = false;
 	gameOver = false;
@@ -121,7 +123,10 @@ void Game::gameMenu()
 
 void Game::gamePlay()
 {
-	gameBoard.initializeBoard();
+	int randomRows = rand() % 3 + 8;
+	int randomCols = rand() % 3 + 8;
+	gameBoard.initializeBoard(randomRows, randomCols);
+
 	bool oPlaying = playing;
 	playing = false;
 	gameBoard.clearInitialMatches();
@@ -223,9 +228,9 @@ void Game::gamePlay()
 						bool gemClicked = false;
 						Vector2i selectingGem;
 
-						for (int i = 0; i < BOARD_ROWS; i++)
+						for (int i = 0; i < randomRows; i++)
 						{
-							for (int j = 0; j < BOARD_COLS; j++)
+							for (int j = 0; j < randomCols; j++)
 							{
 								if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
 								{
@@ -337,9 +342,9 @@ void Game::gamePlay()
 					gemToBomb = false;
 				}
 
-				for (int i = 0; i < BOARD_ROWS; i++)
+				for (int i = 0; i < randomRows; i++)
 				{
-					for (int j = 0; j < BOARD_COLS; j++)
+					for (int j = 0; j < randomCols; j++)
 					{
 						if (gameBoard.getGemType(i, j) != nullptr && gameBoard.getGemType(i, j)->isMarked())
 						{

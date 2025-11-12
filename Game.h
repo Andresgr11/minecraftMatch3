@@ -1,5 +1,7 @@
 #pragma once
 #include <SFML/Audio.hpp>
+#include <cstdlib>
+#include <ctime>
 #include "Board.h"
 #include "iceBlock.h"
 #include "Gem.h"

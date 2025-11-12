@@ -13,14 +13,18 @@ Board::Board()
 	iceBlockTexture.loadFromFile("assets\\ice.png");
 	bombTexture.loadFromFile("assets\\tnt.png");
 
+	/*
 	for (int i = 0; i < BOARD_ROWS; i++)
 	{
 		for (int j = 0; j < BOARD_COLS; j++)
 		{
 			board[i][j] = nullptr;
 		}
-	}
+	}	
+	*/	
 
+	boardRows = 0;
+	boardCols = 0;
 	selectedGemRow = -1;
 	selectedGemCol = -1;
 	totalMatches = 0;
@@ -31,9 +35,9 @@ Board::Board()
 
 Board::~Board()
 {
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			delete board[i][j];
 		}
@@ -51,7 +55,7 @@ Sprite* Board::getGem(int row, int col)
 
 Gem* Board::getGemType(int row, int col) const
 {
-	if (row < 0 || row >= BOARD_ROWS || col < 0 || col >= BOARD_COLS)
+	if (row < 0 || row >= boardRows || col < 0 || col >= boardCols)
 	{
 		return nullptr;
 	}
@@ -123,11 +127,11 @@ bool Board::match()
 {
 	bool matching = false;
 
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
-			if (j < BOARD_COLS - 2)
+			if (j < boardCols - 2)
 			{
 				if (board[i][j + 1] == nullptr || board[i][j + 2] == nullptr || board[i][j + 1]->getType() == Gem::GemType::Bomb || board[i][j + 2]->getType() == Gem::GemType::Bomb)
 				{
@@ -148,7 +152,7 @@ bool Board::match()
 				}
 			}
 
-			if (i < BOARD_ROWS - 2)
+			if (i < boardRows - 2)
 			{
 				if (board[i + 1][j] == nullptr || board[i + 2][j] == nullptr || board[i + 1][j]->getType() == Gem::GemType::Bomb || board[i + 2][j]->getType() == Gem::GemType::Bomb)
 				{
@@ -177,9 +181,9 @@ bool Board::hitIceAndGems()
 {
 	bool hitting = false;
 
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j]->isMarked() && !iceBlockBoard[i][j].getIsFrozen())
 			{
@@ -187,7 +191,7 @@ bool Board::hitIceAndGems()
 				{
 					iceBlockBoard[i - 1][j].markIce();
 				}
-				if (i < BOARD_ROWS - 1 && iceBlockBoard[i + 1][j].getIsFrozen())
+				if (i < boardRows - 1 && iceBlockBoard[i + 1][j].getIsFrozen())
 				{
 					iceBlockBoard[i + 1][j].markIce();
 				}
@@ -195,7 +199,7 @@ bool Board::hitIceAndGems()
 				{
 					iceBlockBoard[i][j - 1].markIce();
 				}
-				if (j < BOARD_COLS - 1 && iceBlockBoard[i][j + 1].getIsFrozen())
+				if (j < boardCols - 1 && iceBlockBoard[i][j + 1].getIsFrozen())
 				{
 					iceBlockBoard[i][j + 1].markIce();
 				}
@@ -203,9 +207,9 @@ bool Board::hitIceAndGems()
 		}
 	}
 
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (iceBlockBoard[i][j].isMarkedIce())
 			{
@@ -239,9 +243,9 @@ bool Board::hitIceAndGems()
 
 void Board::deleteFadedGems()
 {
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr && board[i][j]->isMarked() && board[i][j]->getSprite()->getColor().a == 0)
 			{
@@ -263,9 +267,9 @@ int Board::processMatches()
 		bombExploting = false;
 		
 	}
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr && board[i][j]->isMarked() && board[i][j]->getType() == Gem::GemType::Bomb && board[i][j]->getSprite()->getColor().a == 255)
 			{
@@ -276,9 +280,9 @@ int Board::processMatches()
 		}
 	}
 	
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr && board[i][j]->isMarked() && board[i][j]->getType() == Gem::GemType::Normal && board[i][j]->getSprite()->getColor().a == 255)
 			{
@@ -300,12 +304,12 @@ int Board::processMatches()
 int Board::explotingGems(int row, int col, int dRow, int dCol, int kind)
 {
 	int count = 0;
-	for (int i = 1; i < BOARD_ROWS; i++)
+	for (int i = 1; i < boardRows; i++)
 	{
 		int newRow = row + dRow * i;
 		int newCol = col + dCol * i;
 
-		if (newRow < 0 || newRow >= BOARD_ROWS || newCol < 0 || newCol >= BOARD_COLS)
+		if (newRow < 0 || newRow >= boardRows || newCol < 0 || newCol >= boardCols)
 		{
 			break;
 		}
@@ -344,9 +348,9 @@ void Board::bombCreation(int row, int col)
 
 void Board::drawBoard(RenderWindow& window)
 {
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr)
 			{
@@ -363,11 +367,11 @@ void Board::drawBoard(RenderWindow& window)
 bool Board::gravity()
 {
 	bool gemsGravity = false;
-	for (int j = 0; j < BOARD_COLS; j++)
+	for (int j = 0; j < boardCols; j++)
 	{
 		int emptyRow = -1;
 
-		for (int i = BOARD_ROWS - 1; i >= 0; i--)
+		for (int i = boardRows - 1; i >= 0; i--)
 		{
 			if (board[i][j] != nullptr && board[i][j]->getSprite()->getColor() == Color::Transparent)
 			{
@@ -399,7 +403,7 @@ bool Board::fillOnTop()
 {
 	bool newGems = false;
 
-	for (int j = 0; j < BOARD_COLS; j++)
+	for (int j = 0; j < boardCols; j++)
 	{
 		if (board[0][j] != nullptr && board[0][j]->getSprite()->getColor() == Color::Transparent)
 		{
@@ -415,14 +419,29 @@ bool Board::fillOnTop()
 	return newGems;
 }
 
-void Board::initializeBoard()
+void Board::initializeBoard(int row, int col)
 {
-	srand(time(0));
+	for (int i = 0; i < boardRows; i++)
+	{
+		for (int j = 0; j < boardCols; j++)
+		{
+			delete board[i][j];
+		}
+	}
+	board.clear();
+	iceBlockBoard.clear();
+
+	boardRows = row;
+	boardCols = col;
+
+	board.resize(boardRows, vector<Gem*>(boardCols, nullptr));
+	iceBlockBoard.resize(boardRows, vector<iceBlock>(boardCols));
+
 	int random = 0;
 
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr)
 			{
@@ -443,8 +462,8 @@ void Board::initializeBoard()
 
 	for (int i = 0; i < iceLimit; i++)
 	{
-		int iceRow = rand() % BOARD_ROWS;
-		int iceCol = rand() % BOARD_COLS;
+		int iceRow = rand() % boardRows;
+		int iceCol = rand() % boardCols;
 
 		if (!iceBlockBoard[iceRow][iceCol].getIsFrozen())
 		{
@@ -458,8 +477,8 @@ void Board::clearInitialMatches()
 {
 	while (match())
 	{
-		for (int i = 0; i < BOARD_ROWS; i++) {
-			for (int j = 0; j < BOARD_COLS; j++) {
+		for (int i = 0; i < boardRows; i++) {
+			for (int j = 0; j < boardCols; j++) {
 				if (board[i][j] != nullptr && board[i][j]->isMarked()) {
 					board[i][j]->getSprite()->setColor(Color::Transparent);
 					board[i][j]->unmark();
@@ -469,9 +488,9 @@ void Board::clearInitialMatches()
 		while (updateBoard());
 	}
 
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr)
 			{
@@ -486,9 +505,9 @@ void Board::clearInitialMatches()
 
 	while (match())
 	{
-		for (int i = 0; i < BOARD_ROWS; i++)
+		for (int i = 0; i < boardRows; i++)
 		{
-			for (int j = 0; j < BOARD_COLS; j++)
+			for (int j = 0; j < boardCols; j++)
 			{
 				if (board[i][j] != nullptr && board[i][j]->isMarked())
 				{
@@ -505,9 +524,9 @@ bool Board::updateBoard()
 {
 	bool gravityGems = false;
 
-	for (int i = BOARD_ROWS - 1; i >= 1; i--)
+	for (int i = boardRows - 1; i >= 1; i--)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j]->getSprite()->getColor() == Color::Transparent)
 			{
@@ -522,7 +541,7 @@ bool Board::updateBoard()
 		}
 	}
 
-	for (int j = 0; j < BOARD_COLS; j++)
+	for (int j = 0; j < boardCols; j++)
 	{
 		if (board[0][j]->getSprite()->getColor() == Color::Transparent)
 		{
@@ -548,9 +567,9 @@ bool Board::updateAnimations(float dt)
 {
 	bool isAnimating = false;
 
-	for (int i = 0; i < BOARD_ROWS; i++)
+	for (int i = 0; i < boardRows; i++)
 	{
-		for (int j = 0; j < BOARD_COLS; j++)
+		for (int j = 0; j < boardCols; j++)
 		{
 			if (board[i][j] != nullptr)
 			{
