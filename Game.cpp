@@ -14,8 +14,10 @@ Game::Game()
 
 	click = 0, points = 0;
 	movements = 20;
-	missionType = 4;
+	missionType = 0;
 	musicType = rand() % 4;
+
+	font.openFromFile("assets\\Minecraft.otf");
 
 	backgroundMusic[0].openFromFile("assets\\sweden.mp3");
 	backgroundMusic[1].openFromFile("assets\\minecraft.mp3");
@@ -45,7 +47,6 @@ Game::Game()
 		if (playing)
 		{
 			gamePlay();
-
 		}
 		else if (levelComplete)
 		{
@@ -65,8 +66,6 @@ void Game::gameMenu()
 
 	while (window->isOpen() && menu)
 	{
-		Font font("assets\\Minecraft.otf");
-
 		Text title(font, "Minecraft Match-3");
 		title.setCharacterSize(40);
 		title.setFillColor(Color::White);
@@ -165,7 +164,11 @@ void Game::gamePlay()
 	gameBoard.clearInitialMatches();
 	playing = oPlaying;
 
+	points = 0;
+	movements = 20;
+
 	gameBoard.diamondsCleared = 0;
+	gameBoard.goldCleared = 0;
 	gameBoard.iceBlocksBroken = 0;
 	gameBoard.fiveGemMatch = 0;
 
@@ -185,8 +188,6 @@ void Game::gamePlay()
 		bool stateChanging = false;
 
 		missionProgress();
-
-		Font font("assets\\Minecraft.otf");
 
 		String pointsText = "Puntos: " + to_string(points);
 		String movesText = "Movimientos: " + to_string(movements);
@@ -466,9 +467,7 @@ void Game::gamePlay()
 void Game::gameWin()
 {
 	while (window->isOpen() && levelComplete)
-	{
-		Font font("assets\\Minecraft.otf");
-		
+	{		
 		Text winningText(font, "¡Has ganado!");
 		winningText.setCharacterSize(50);
 		winningText.setFillColor(Color::White);
@@ -551,10 +550,6 @@ void Game::gameWin()
 					if (nextLevelButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton de siguiente nivel presionado" << endl;
-						points = 0;
-						movements = 20;
-						gameBoard.diamondsCleared = 0;
-						gameBoard.iceBlocksBroken = 0;
 						missionType++;
 						backgroundMusic[musicType].stop();
 						playing = true;
@@ -579,8 +574,6 @@ void Game::endGame()
 {
 	while (window->isOpen() && gameOver)
 	{
-		Font font("assets\\Minecraft.otf");
-
 		Text gameOverText(font, "¡Has muerto!");
 		gameOverText.setCharacterSize(50);
 		gameOverText.setFillColor(Color::White);
@@ -664,10 +657,6 @@ void Game::endGame()
 					if (restartButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton Reiniciar presionado" << endl;
-						points = 0;
-						movements = 20;
-						gameBoard.diamondsCleared = 0;
-						gameBoard.iceBlocksBroken = 0;
 						backgroundMusic[musicType].stop();
 						playing = true;
 						gameOver = false;
@@ -704,7 +693,7 @@ void Game::missions()
 	}
 	else if (missionType == 3)
 	{
-		missionText = "xD";
+		missionText = "Elimina 20 lingotes de oro y rompe 2 bloques de hielo.";
 	}
 	else if (missionType == 4)
 	{
@@ -761,7 +750,18 @@ void Game::missionProgress()
 	}
 	else if (missionType == 3)
 	{
-		
+		progressText = to_string(gameBoard.goldCleared) + "/30 , " + to_string(gameBoard.iceBlocksBroken) + "/3";
+
+		if (gameBoard.goldCleared >= 30 && gameBoard.iceBlocksBroken >= 3)
+		{
+			objetiveCompleted = true;
+			finalProgressText = "Objetivo cumplido.";
+			levelCompleteSound->play();
+		}
+		else
+		{
+			finalProgressText = "Objetivo no cumplido.";
+		}
 	}
 	else if (missionType == 4)
 	{

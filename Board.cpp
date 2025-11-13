@@ -22,6 +22,7 @@ Board::Board()
 	selectedGemCol = -1;
 	totalMatches = 0;
 	diamondsCleared = 0;
+	goldCleared = 0;
 	iceBlocksBroken = 0;
 	fiveGemMatch = 0;
 	hitCounter = 0;
@@ -303,6 +304,10 @@ int Board::processMatches()
 				if (board[i][j]->getGemKind() == 0)
 				{
 					diamondsCleared++;
+				}
+				if (board[i][j]->getGemKind() == 3)
+				{
+					goldCleared++;
 				}
 			}
 		}

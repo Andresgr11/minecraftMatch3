@@ -19,6 +19,7 @@ private:
 	Sound* missionCompleteSound;
 	Sound* levelCompleteSound;
 	Sound* death;
+	Font font;
 	bool menu;
 	bool playing;
 	bool levelComplete;

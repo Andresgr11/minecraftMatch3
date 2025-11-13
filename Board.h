@@ -26,6 +26,7 @@ public:
 	int selectedGemCol;
 	int totalMatches;
 	int diamondsCleared;
+	int goldCleared;
 	int iceBlocksBroken;
 	int hitCounter;
 	int fiveGemMatch;
