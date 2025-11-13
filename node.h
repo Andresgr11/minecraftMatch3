@@ -11,11 +11,12 @@ class node
 {
 private:
 	T data;
-	node* next;
+	node<T>* next;
 public:
-	node(int val) : data(val), next(nullptr) {}
+	node(T val) : data(val), next(nullptr) {}
+	~node() {}
 	T getData() const { return data; }
-	void setData(int val) { data = val; }
-	node* getNext() const { return next; }
-	void setNext(node* nxt) { next = nxt; }
+	void setData(T val) { data = val; }
+	node<T>* getNext() const { return next; }
+	void setNext(node<T>* nxt) { next = nxt; }
 };
