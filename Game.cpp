@@ -9,6 +9,7 @@ Game::Game()
 	gameOver = false;
 	objetiveCompleted = false;
 	menu = true;
+	levelSelect = false;
 	window = new RenderWindow(VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), WINDOW_TITLE);
 	window->setFramerateLimit(FPS);
 
@@ -80,10 +81,13 @@ Game::Game()
 	currentPlayerNode = nullptr;
 	players.loadFromFile(PLAYERS_FILE);
 
-	gameMenu();
-	while (playing || levelSelect || levelComplete || gameOver)
+	while (menu || playing || levelSelect || levelComplete || gameOver)
 	{
-		if (playing)
+		if (menu)
+		{
+			gameMenu();
+		}
+		else if (playing)
 		{
 			gamePlay();
 		}
@@ -113,10 +117,23 @@ void Game::gameMenu()
 	int topScores[3];
 	players.topPlayers(3, topNames, topScores);
 
+	bool changingProfile = false;
+	bool selectProfile = false;
+
 	Text title(font, "Minecraft Match-3");
 	title.setCharacterSize(40);
 	title.setFillColor(Color::White);
 	title.setPosition(Vector2f{ 40, 30 });
+
+	Text welcomeText(font, "Bienvenido, " + currentPlayerName + "!");
+	welcomeText.setCharacterSize(30);
+	welcomeText.setFillColor(Color::White);
+	welcomeText.setPosition(Vector2f{ 40, 80 });
+
+	Text selectProfileText(font, "Utilice un perfil para comenzar.");
+	selectProfileText.setCharacterSize(25);
+	selectProfileText.setFillColor(Color::White);
+	selectProfileText.setPosition(Vector2f{ 40, 130 });
 
 	RectangleShape startButton(Vector2f(200, 50));
 	startButton.setFillColor(Color::Green);
@@ -131,6 +148,20 @@ void Game::gameMenu()
 	rankTitle.setCharacterSize(30);
 	rankTitle.setFillColor(Color::Yellow);
 	rankTitle.setPosition(Vector2f{ 510, 30 });
+
+	RectangleShape changeProfileButton(Vector2f(150, 40));
+	changeProfileButton.setFillColor(Color::Magenta);
+	changeProfileButton.setPosition(Vector2f{ 50, 500 });
+
+	Text changeProfileText(font, "Cambiar Perfil");
+	changeProfileText.setCharacterSize(20);
+	changeProfileText.setFillColor(Color::White);
+	changeProfileText.setPosition(Vector2f{ 55, 505 });
+
+	Text typeEnter(font, "Presiona Enter para confirmar");
+	typeEnter.setCharacterSize(20);
+	typeEnter.setFillColor(Color::White);
+	typeEnter.setPosition(Vector2f{ 255, 290 });
 
 	Text rankTexts[3] = {
 		Text(font, ""), Text(font, ""), Text(font, "")
@@ -163,21 +194,47 @@ void Game::gameMenu()
 	nameText.setFillColor(Color::Black);
 	nameText.setPosition(Vector2f{ 255, 245 });
 
+	RectangleShape exitButton(Vector2f(100, 40));
+	exitButton.setFillColor(Color::Red);
+	exitButton.setPosition(Vector2f{ 650, 500 });
+
+	Text exitText(font, "Salir");
+	exitText.setCharacterSize(20);
+	exitText.setFillColor(Color::White);
+	exitText.setPosition(Vector2f{ 675, 505 });
+
 	backgroundSprite->setPosition(Vector2f{ 0, 0 });
 
 	while (window->isOpen() && menu)
 	{
 		window->draw(*backgroundSprite);
 		window->draw(title);
-		window->draw(nameInput);
-		window->draw(nameBox);
-		window->draw(nameText);
-		window->draw(startButton);
-		window->draw(startText);
+		window->draw(welcomeText);
+		window->draw(exitButton);
+		window->draw(exitText);
+		window->draw(changeProfileButton);
+		window->draw(changeProfileText);
 		window->draw(rankTitle);
 		for (int i = 0; i < 3; i++)
 		{
 			window->draw(rankTexts[i]);
+		}
+
+		if (changingProfile)
+		{
+			window->draw(nameInput);
+			window->draw(nameBox);
+			window->draw(nameText);
+			window->draw(typeEnter);
+		}
+		else
+		{
+			window->draw(startButton);
+			window->draw(startText);
+		}
+		if (!selectProfile && !changingProfile)
+		{
+			window->draw(selectProfileText);
 		}
 
 		Vector2i pos = Mouse::getPosition(*window);
@@ -190,37 +247,64 @@ void Game::gameMenu()
 				menu = false;
 			}
 
-			if (const auto* textEntered = event->getIf<Event::TextEntered>())
-			{
-				if (textEntered->unicode >= 32 && textEntered->unicode < 128 && playerNameInput.length() < 15) {
-					playerNameInput += static_cast<char>(textEntered->unicode);
-					nameText.setString(playerNameInput);
-				}
-			}
-			if (const auto* keyPressed = event->getIf<Event::KeyPressed>())
-			{
-				if (keyPressed->code == Keyboard::Key::Backspace && !playerNameInput.empty()) {
-					playerNameInput.pop_back();
-					nameText.setString(playerNameInput);
-				}
-			}
-
-			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
-			{
-				if (mouseButtonPressed->button == Mouse::Button::Left)
+			if (changingProfile)
+			{				
+				if (const auto* textEntered = event->getIf<Event::TextEntered>())
 				{
-					if (startButton.getGlobalBounds().contains(Vector2f(pos)) && !playerNameInput.empty())
-					{
-						cout << "Boton Iniciar presionado" << endl;
+					if (textEntered->unicode >= 32 && textEntered->unicode < 128 && playerNameInput.length() < 15) {
+						playerNameInput += static_cast<char>(textEntered->unicode);
+						nameText.setString(playerNameInput);
+					}
+				}
+				if (const auto* keyPressed = event->getIf<Event::KeyPressed>())
+				{
+					if (keyPressed->code == Keyboard::Key::Backspace && !playerNameInput.empty()) {
+						playerNameInput.pop_back();
+						nameText.setString(playerNameInput);
+					}
+				}
+				if (const auto* keyPressed = event->getIf<Event::KeyPressed>())
+				{
+					if (keyPressed->code == Keyboard::Key::Enter && !playerNameInput.empty()) {
 						currentPlayerName = playerNameInput;
 						currentPlayerNode = players.findOrCreatePlayer(currentPlayerName);
-						levelSelect = true;
-						menu = false;
-						break;
+						welcomeText.setString("Bienvenido, " + currentPlayerName + "!");
+						changingProfile = false;
+						selectProfile = true;
 					}
-
 				}
 			}
+			else
+			{
+				if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
+				{
+					if (mouseButtonPressed->button == Mouse::Button::Left)
+					{
+						if (startButton.getGlobalBounds().contains(Vector2f(pos)) && !playerNameInput.empty())
+						{
+							cout << "Boton Iniciar presionado" << endl;
+							levelSelect = true;
+							menu = false;
+							break;
+						}
+						if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
+						{
+							cout << "Boton Salir presionado" << endl;
+							window->close();
+							menu = false;
+							break;
+						}
+						if (changeProfileButton.getGlobalBounds().contains(Vector2f(pos)))
+						{
+							cout << "Boton Cambiar Perfil presionado" << endl;
+							changingProfile = true;
+							playerNameInput = "";
+							nameText.setString(playerNameInput);
+						}
+					}
+				}
+			}
+			
 		}
 		window->display();
 	}
@@ -232,21 +316,26 @@ void Game::levelSelection()
 
 	while (window->isOpen() && levelSelect)
 	{
-		Text welcomeText(font, "Bienvenido, " + currentPlayerName + "!");
-		welcomeText.setCharacterSize(30);
-		welcomeText.setFillColor(Color::White);
-		welcomeText.setPosition(Vector2f{ 30, 30 });
-
 		Text title(font, "Selecciona un nivel");
-		title.setCharacterSize(30);
+		title.setCharacterSize(40);
 		title.setFillColor(Color::White);
-		title.setPosition(Vector2f{ 250, 80 });
+		title.setPosition(Vector2f{ 200, 50 });
+
+		RectangleShape backToMenuButton(Vector2f(150, 50));
+		backToMenuButton.setFillColor(Color::Red);
+		backToMenuButton.setPosition(Vector2f{ 50, 500 });
+
+		Text backToMenuText(font, "Menu");
+		backToMenuText.setCharacterSize(30);
+		backToMenuText.setFillColor(Color::White);
+		backToMenuText.setPosition(Vector2f{ 90, 505 });
 
 		RectangleShape levelButtons[5];
 
 		levelButtons[0] = RectangleShape(Vector2f(150, 50));
 		levelButtons[0].setFillColor(Color::Green);
 		levelButtons[0].setPosition(Vector2f{ 100, 150 });
+
 		Text level1Text(font, "Nivel 1");
 		level1Text.setCharacterSize(30);
 		level1Text.setFillColor(Color::White);
@@ -255,6 +344,7 @@ void Game::levelSelection()
 		levelButtons[1] = RectangleShape(Vector2f(150, 50));
 		levelButtons[1].setFillColor(Color::Green);
 		levelButtons[1].setPosition(Vector2f{ 300, 150 });
+
 		Text level2Text(font, "Nivel 2");
 		level2Text.setCharacterSize(30);
 		level2Text.setFillColor(Color::White);
@@ -263,6 +353,7 @@ void Game::levelSelection()
 		levelButtons[2] = RectangleShape(Vector2f(150, 50));
 		levelButtons[2].setFillColor(Color::Green);
 		levelButtons[2].setPosition(Vector2f{ 500, 150 });
+
 		Text level3Text(font, "Nivel 3");
 		level3Text.setCharacterSize(30);
 		level3Text.setFillColor(Color::White);
@@ -271,6 +362,7 @@ void Game::levelSelection()
 		levelButtons[3] = RectangleShape(Vector2f(150, 50));
 		levelButtons[3].setFillColor(Color::Green);
 		levelButtons[3].setPosition(Vector2f{ 200, 250 });
+
 		Text level4Text(font, "Nivel 4");
 		level4Text.setCharacterSize(30);
 		level4Text.setFillColor(Color::White);
@@ -279,6 +371,7 @@ void Game::levelSelection()
 		levelButtons[4] = RectangleShape(Vector2f(150, 50));
 		levelButtons[4].setFillColor(Color::Green);
 		levelButtons[4].setPosition(Vector2f{ 400, 250 });
+
 		Text level5Text(font, "Nivel 5");
 		level5Text.setCharacterSize(30);
 		level5Text.setFillColor(Color::White);
@@ -295,8 +388,9 @@ void Game::levelSelection()
 		backgroundSprite->setPosition(Vector2f{ 0, 0 });
 
 		window->draw(*backgroundSprite);
-		window->draw(welcomeText);
 		window->draw(title);
+		window->draw(backToMenuButton);
+		window->draw(backToMenuText);
 		for (int i = 0; i < 5; i++)
 		{
 			window->draw(levelButtons[i]);
@@ -306,8 +400,6 @@ void Game::levelSelection()
 		window->draw(level3Text);
 		window->draw(level4Text);
 		window->draw(level5Text);
-
-		
 
 		Vector2i pos = Mouse::getPosition(*window);
 
@@ -327,11 +419,18 @@ void Game::levelSelection()
 					{
 						if (levelButtons[i].getGlobalBounds().contains(Vector2f(pos)) && i <= levelsCompleted)
 						{
-							cout << "Nivel " << (i + 1) << " seleccionado" << endl;
+							cout << "Nivel " << (i + 1) << " seleccionado." << endl;
 							missionType = i;
 							backgroundMusic[musicType].stop();
 							levelSelect = false;
 							playing = true;
+							break;
+						}
+						if (backToMenuButton.getGlobalBounds().contains(Vector2f(pos)))
+						{
+							cout << "Volviendo al menu principal." << endl;
+							levelSelect = false;
+							menu = true;
 							break;
 						}
 					}
@@ -387,7 +486,7 @@ void Game::gamePlay()
 	playing = oPlaying;
 
 	points = 0;
-	movements = 20;
+	movements = 1;
 
 	gameBoard.diamondsCleared = 0;
 	gameBoard.goldCleared = 0;
@@ -785,9 +884,18 @@ void Game::gameWin()
 						if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
 						{
 							cout << "Boton Salir presionado" << endl;
-							levelComplete = false;
-							window->close();
-							break;
+							if (currentPlayerNode != nullptr)
+							{
+								player currentData = currentPlayerNode->getData();
+								int newLevelsCompleted = missionType + 1;
+								int newMaxScore = (currentData.getMaxScore() > points) ? currentData.getMaxScore() : points;
+								currentPlayerNode->setData(player(currentPlayerName, newMaxScore, newLevelsCompleted));
+								players.saveToFile(PLAYERS_FILE);
+								levelSelect = true;
+								levelComplete = false;
+								break;
+							}
+							
 						}
 					}
 				}
@@ -902,8 +1010,18 @@ void Game::endGame()
 					if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton Salir presionado" << endl;
+						if (currentPlayerNode != nullptr)
+						{
+							player currentData = currentPlayerNode->getData();
+							if (points > currentData.getMaxScore())
+							{
+								currentPlayerNode->setData(player(currentPlayerName, points, currentData.getLevelsCompleted()));
+								players.saveToFile(PLAYERS_FILE);
+								cout << "Nuevo puntaje maximo guardado: " << points << endl;
+							}
+						}
+						levelSelect = true;
 						gameOver = false;
-						window->close();
 						break;
 					}
 				}
