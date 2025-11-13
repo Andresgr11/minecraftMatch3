@@ -2,7 +2,6 @@
 #include <string>
 
 using namespace std;
-
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 const string WINDOW_TITLE = "Minercaft Match-3";
