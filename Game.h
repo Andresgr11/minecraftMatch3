@@ -5,13 +5,16 @@
 #include "Board.h"
 #include "iceBlock.h"
 #include "Gem.h"
-
+#include "playersList.h"
+#include "player.h"
 
 class Game
 {
 private:
 	RenderWindow* window;
 	Board gameBoard;
+	Texture backgroundTexture;
+	Sprite* backgroundSprite;
 	Music backgroundMusic[4];
 	SoundBuffer audioBuffers[5];
 	Sound* iceBreak;
@@ -21,10 +24,12 @@ private:
 	Sound* death;
 	Font font;
 	bool menu;
+	bool levelSelect;
 	bool playing;
 	bool levelComplete;
 	bool gameOver;
 	void gameMenu();
+	void levelSelection();
 	void gamePlay();
 	void gameWin();
 	void endGame();
@@ -40,11 +45,13 @@ private:
 	Vector2i selectedGem;
 	Vector2i swappedGem;
 	bool gemToBomb;
+	playersList players;
+	node<player>* currentPlayerNode;
+	string currentPlayerName;        
+	const string PLAYERS_FILE = "assets\\players_data.txt";
 public:
 	Game();
-	~Game() {
-		delete window; delete death; delete iceBreak; delete tntExplosion; delete missionCompleteSound; delete levelCompleteSound;
-	}
+	~Game() { delete window; delete backgroundSprite; delete death; delete iceBreak; delete tntExplosion; delete missionCompleteSound; delete levelCompleteSound; }
 	int click;
 	int points;
 	int movements;

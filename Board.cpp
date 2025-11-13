@@ -5,13 +5,34 @@
 
 Board::Board()
 {
-	gemTextures[0].loadFromFile("assets\\01.png");
-	gemTextures[1].loadFromFile("assets\\02.png");
-	gemTextures[2].loadFromFile("assets\\03.png");
-	gemTextures[3].loadFromFile("assets\\04.png");
-	gemTextures[4].loadFromFile("assets\\05.png");
-	iceBlockTexture.loadFromFile("assets\\ice.png");
-	bombTexture.loadFromFile("assets\\tnt.png");
+	if (!gemTextures[0].loadFromFile("assets\\01.png"))
+	{
+		cerr << "Error al cargar la textura diamante." << endl;
+	}
+	if (!gemTextures[1].loadFromFile("assets\\02.png"))
+	{
+		cerr << "Error al cargar la textura redstone." << endl;
+	}
+	if (!gemTextures[2].loadFromFile("assets\\03.png"))
+	{
+		cerr << "Error al cargar la textura esmeralda." << endl;
+	}
+	if (!gemTextures[3].loadFromFile("assets\\04.png"))
+	{
+		cerr << "Error al cargar la textura oro." << endl;
+	}
+	if (!gemTextures[4].loadFromFile("assets\\05.png"))
+	{
+		cerr << "Error al cargar la textura hierro." << endl;
+	}
+	if (!iceBlockTexture.loadFromFile("assets\\ice.png"))
+	{
+		cerr << "Error al cargar la textura bloque de hielo." << endl;
+	}
+	if (!bombTexture.loadFromFile("assets\\tnt.png"))
+	{
+		cerr << "Error al cargar la textura TNT." << endl;
+	}	
 
 	board = nullptr;
 	iceBlockBoard = nullptr;

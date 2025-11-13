@@ -17,18 +17,54 @@ Game::Game()
 	missionType = 0;
 	musicType = rand() % 4;
 
-	font.openFromFile("assets\\Minecraft.otf");
+	if (!backgroundTexture.loadFromFile("assets\\bg.png"))
+	{
+		cerr << "Error al cargar la textura de fondo." << endl;
+	}
+	backgroundSprite = new Sprite(backgroundTexture);
 
-	backgroundMusic[0].openFromFile("assets\\sweden.mp3");
-	backgroundMusic[1].openFromFile("assets\\minecraft.mp3");
-	backgroundMusic[2].openFromFile("assets\\haggstrom.mp3");
-	backgroundMusic[3].openFromFile("assets\\wethands.mp3");
+	if (!font.openFromFile("assets\\Minecraft.otf"))
+	{
+		cerr << "Error al cargar la fuente de texto." << endl;
+	}
 
-	audioBuffers[0].loadFromFile("assets\\icebreak.mp3");
-	audioBuffers[1].loadFromFile("assets\\tntexplosion.mp3");
-	audioBuffers[2].loadFromFile("assets\\endermandeath.mp3");
-	audioBuffers[3].loadFromFile("assets\\missioncomplete.mp3");
-	audioBuffers[4].loadFromFile("assets\\levelcomplete.mp3");
+	if (!backgroundMusic[0].openFromFile("assets\\sweden.mp3"))
+	{
+		cerr << "Error al cargar la musica de fondo Sweden." << endl;
+	}
+	if (!backgroundMusic[1].openFromFile("assets\\minecraft.mp3"))
+	{
+		cerr << "Error al cargar la musica de fondo Minecraft." << endl;
+	}
+	if (!backgroundMusic[2].openFromFile("assets\\haggstrom.mp3"))
+	{
+		cerr << "Error al cargar la musica de fondo Haggstrom." << endl;
+	}
+	if (!backgroundMusic[3].openFromFile("assets\\wethands.mp3"))
+	{
+		cerr << "Error al cargar la musica de fondo Wet Hands." << endl;
+	}
+	
+	if (!audioBuffers[0].loadFromFile("assets\\icebreak.mp3"))
+	{
+		cerr << "Error al cargar el sonido Ice Break." << endl;
+	}
+	if (!audioBuffers[1].loadFromFile("assets\\tntexplosion.mp3"))
+	{
+		cerr << "Error al cargar el sonido TNT Explosion." << endl;
+	}
+	if (!audioBuffers[2].loadFromFile("assets\\endermandeath.mp3"))
+	{
+		cerr << "Error al cargar el sonido Enderman Death." << endl;
+	}
+	if (!audioBuffers[3].loadFromFile("assets\\missioncomplete.mp3"))
+	{
+		cerr << "Error al cargar el sonido Mission Complete." << endl;
+	}
+	if (!audioBuffers[4].loadFromFile("assets\\levelcomplete.mp3"))
+	{
+		cerr << "Error al cargar el sonido Level Complete." << endl;
+	}
 
 	iceBreak = new Sound(audioBuffers[0]);
 	tntExplosion = new Sound(audioBuffers[1]);
@@ -41,12 +77,19 @@ Game::Game()
 	swappedGem = Vector2i(-1, -1);
 	gemToBomb = false;
 
+	currentPlayerNode = nullptr;
+	players.loadFromFile(PLAYERS_FILE);
+
 	gameMenu();
-	while (playing || levelComplete || gameOver)
+	while (playing || levelSelect || levelComplete || gameOver)
 	{
 		if (playing)
 		{
 			gamePlay();
+		}
+		else if (levelSelect)
+		{
+			levelSelection();
 		}
 		else if (levelComplete)
 		{
@@ -64,31 +107,78 @@ void Game::gameMenu()
 	backgroundMusic[musicType].play();
 	backgroundMusic[musicType].setLooping(true);
 
+	players.sortPlayersByScore();
+
+	string topNames[3];
+	int topScores[3];
+	players.topPlayers(3, topNames, topScores);
+
+	Text title(font, "Minecraft Match-3");
+	title.setCharacterSize(40);
+	title.setFillColor(Color::White);
+	title.setPosition(Vector2f{ 40, 30 });
+
+	RectangleShape startButton(Vector2f(200, 50));
+	startButton.setFillColor(Color::Green);
+	startButton.setPosition(Vector2f{ 300, 300 });
+
+	Text startText(font, "Iniciar");
+	startText.setCharacterSize(30);
+	startText.setFillColor(Color::White);
+	startText.setPosition(Vector2f{ 350, 305 });
+
+	Text rankTitle(font, "TOP 3 JUGADORES");
+	rankTitle.setCharacterSize(30);
+	rankTitle.setFillColor(Color::Yellow);
+	rankTitle.setPosition(Vector2f{ 510, 30 });
+
+	Text rankTexts[3] = {
+		Text(font, ""), Text(font, ""), Text(font, "")
+	};
+
+	for (int i = 0; i < 3; i++)
+	{
+		rankTexts[i].setFont(font);
+		rankTexts[i].setCharacterSize(25);
+		rankTexts[i].setFillColor(Color::White);
+		rankTexts[i].setPosition(Vector2f{ 510.f, 70.f + (i * 35.f) });
+		string rankString = to_string(i + 1) + ". " + topNames[i] + " - " + to_string(topScores[i]);
+		rankTexts[i].setString(rankString);
+	}
+
+	string playerNameInput = "";
+	Text nameInput(font, "Ingresa tu nombre:");
+	nameInput.setCharacterSize(30);
+	nameInput.setFillColor(Color::White);
+	nameInput.setPosition(Vector2f{ 250, 200 });
+
+	RectangleShape nameBox(Vector2f(300, 50));
+	nameBox.setFillColor(Color::White);
+	nameBox.setOutlineColor(Color::Black);
+	nameBox.setOutlineThickness(2);
+	nameBox.setPosition(Vector2f{ 250, 240 });
+
+	Text nameText(font, "");
+	nameText.setCharacterSize(30);
+	nameText.setFillColor(Color::Black);
+	nameText.setPosition(Vector2f{ 255, 245 });
+
+	backgroundSprite->setPosition(Vector2f{ 0, 0 });
+
 	while (window->isOpen() && menu)
 	{
-		Text title(font, "Minecraft Match-3");
-		title.setCharacterSize(40);
-		title.setFillColor(Color::White);
-		title.setPosition(Vector2f{ 40, 30 });
-
-		RectangleShape startButton(Vector2f(200, 50));
-		startButton.setFillColor(Color::Green);
-		startButton.setPosition(Vector2f{ 300, 300 });
-
-		Text startText(font, "Iniciar");
-		startText.setCharacterSize(30);
-		startText.setFillColor(Color::White);
-		startText.setPosition(Vector2f{ 350, 305 });
-
-		Texture backgroundTexture;
-		backgroundTexture.loadFromFile("assets\\bg.png");
-		Sprite backgroundSprite(backgroundTexture);
-		backgroundSprite.setPosition(Vector2f{ 0, 0 });
-
-		window->draw(backgroundSprite);
+		window->draw(*backgroundSprite);
 		window->draw(title);
+		window->draw(nameInput);
+		window->draw(nameBox);
+		window->draw(nameText);
 		window->draw(startButton);
 		window->draw(startText);
+		window->draw(rankTitle);
+		for (int i = 0; i < 3; i++)
+		{
+			window->draw(rankTexts[i]);
+		}
 
 		Vector2i pos = Mouse::getPosition(*window);
 
@@ -98,21 +188,153 @@ void Game::gameMenu()
 			{
 				window->close();
 				menu = false;
-			}				
+			}
+
+			if (const auto* textEntered = event->getIf<Event::TextEntered>())
+			{
+				if (textEntered->unicode >= 32 && textEntered->unicode < 128 && playerNameInput.length() < 15) {
+					playerNameInput += static_cast<char>(textEntered->unicode);
+					nameText.setString(playerNameInput);
+				}
+			}
+			if (const auto* keyPressed = event->getIf<Event::KeyPressed>())
+			{
+				if (keyPressed->code == Keyboard::Key::Backspace && !playerNameInput.empty()) {
+					playerNameInput.pop_back();
+					nameText.setString(playerNameInput);
+				}
+			}
 
 			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
 			{
 				if (mouseButtonPressed->button == Mouse::Button::Left)
 				{
-					if (startButton.getGlobalBounds().contains(Vector2f(pos)))
+					if (startButton.getGlobalBounds().contains(Vector2f(pos)) && !playerNameInput.empty())
 					{
 						cout << "Boton Iniciar presionado" << endl;
-						backgroundMusic[musicType].stop();
-						playing = true;
+						currentPlayerName = playerNameInput;
+						currentPlayerNode = players.findOrCreatePlayer(currentPlayerName);
+						levelSelect = true;
 						menu = false;
 						break;
 					}
 
+				}
+			}
+		}
+		window->display();
+	}
+}
+
+void Game::levelSelection()
+{
+	int levelsCompleted = currentPlayerNode->getData().getLevelsCompleted();
+
+	while (window->isOpen() && levelSelect)
+	{
+		Text welcomeText(font, "Bienvenido, " + currentPlayerName + "!");
+		welcomeText.setCharacterSize(30);
+		welcomeText.setFillColor(Color::White);
+		welcomeText.setPosition(Vector2f{ 30, 30 });
+
+		Text title(font, "Selecciona un nivel");
+		title.setCharacterSize(30);
+		title.setFillColor(Color::White);
+		title.setPosition(Vector2f{ 250, 80 });
+
+		RectangleShape levelButtons[5];
+
+		levelButtons[0] = RectangleShape(Vector2f(150, 50));
+		levelButtons[0].setFillColor(Color::Green);
+		levelButtons[0].setPosition(Vector2f{ 100, 150 });
+		Text level1Text(font, "Nivel 1");
+		level1Text.setCharacterSize(30);
+		level1Text.setFillColor(Color::White);
+		level1Text.setPosition(Vector2f{ 125, 155 });
+
+		levelButtons[1] = RectangleShape(Vector2f(150, 50));
+		levelButtons[1].setFillColor(Color::Green);
+		levelButtons[1].setPosition(Vector2f{ 300, 150 });
+		Text level2Text(font, "Nivel 2");
+		level2Text.setCharacterSize(30);
+		level2Text.setFillColor(Color::White);
+		level2Text.setPosition(Vector2f{ 325, 155 });
+
+		levelButtons[2] = RectangleShape(Vector2f(150, 50));
+		levelButtons[2].setFillColor(Color::Green);
+		levelButtons[2].setPosition(Vector2f{ 500, 150 });
+		Text level3Text(font, "Nivel 3");
+		level3Text.setCharacterSize(30);
+		level3Text.setFillColor(Color::White);
+		level3Text.setPosition(Vector2f{ 525, 155 });
+
+		levelButtons[3] = RectangleShape(Vector2f(150, 50));
+		levelButtons[3].setFillColor(Color::Green);
+		levelButtons[3].setPosition(Vector2f{ 200, 250 });
+		Text level4Text(font, "Nivel 4");
+		level4Text.setCharacterSize(30);
+		level4Text.setFillColor(Color::White);
+		level4Text.setPosition(Vector2f{ 225, 255 });
+
+		levelButtons[4] = RectangleShape(Vector2f(150, 50));
+		levelButtons[4].setFillColor(Color::Green);
+		levelButtons[4].setPosition(Vector2f{ 400, 250 });
+		Text level5Text(font, "Nivel 5");
+		level5Text.setCharacterSize(30);
+		level5Text.setFillColor(Color::White);
+		level5Text.setPosition(Vector2f{ 425, 255 });
+
+		for (int i = 0; i < 5; i++)
+		{
+			if (i > levelsCompleted)
+			{
+				levelButtons[i].setFillColor(Color(128, 128, 128));
+			}
+		}
+
+		backgroundSprite->setPosition(Vector2f{ 0, 0 });
+
+		window->draw(*backgroundSprite);
+		window->draw(welcomeText);
+		window->draw(title);
+		for (int i = 0; i < 5; i++)
+		{
+			window->draw(levelButtons[i]);
+		}
+		window->draw(level1Text);
+		window->draw(level2Text);
+		window->draw(level3Text);
+		window->draw(level4Text);
+		window->draw(level5Text);
+
+		
+
+		Vector2i pos = Mouse::getPosition(*window);
+
+		while (const optional event = window->pollEvent())
+		{
+			if (event->is<Event::Closed>())
+			{
+				window->close();
+				levelSelect = false;
+			}
+
+			if (const auto* mouseButtonPressed = event->getIf<Event::MouseButtonPressed>())
+			{
+				if (mouseButtonPressed->button == Mouse::Button::Left)
+				{
+					for (int i = 0; i < 5; i++)
+					{
+						if (levelButtons[i].getGlobalBounds().contains(Vector2f(pos)) && i <= levelsCompleted)
+						{
+							cout << "Nivel " << (i + 1) << " seleccionado" << endl;
+							missionType = i;
+							backgroundMusic[musicType].stop();
+							levelSelect = false;
+							playing = true;
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -127,37 +349,37 @@ void Game::gamePlay()
 		missionType = 0;
 	}
 
-	int randomRows;
-	int randomCols;
+	int levelRows;
+	int levelCols;
 
 	switch (missionType)
 	{
 	case 0:
-		randomRows = 8;
-		randomCols = 8;
+		levelRows = 8;
+		levelCols = 8;
 		break;
 	case 1:
-		randomRows = 10;
-		randomCols = 10;
+		levelRows = 10;
+		levelCols = 10;
 		break;
 	case 2:
-		randomRows = 9;
-		randomCols = 8;
+		levelRows = 9;
+		levelCols = 8;
 		break;
 	case 3:
-		randomRows = 10;
-		randomCols = 9;
+		levelRows = 10;
+		levelCols = 9;
 		break;
 	case 4:
-		randomRows = 8;
-		randomCols = 10;
+		levelRows = 8;
+		levelCols = 10;
 		break;
 	default:
-		randomRows = 8;
-		randomCols = 8;
+		levelRows = 8;
+		levelCols = 8;
 		break;
 	}
-	gameBoard.initializeBoard(randomRows, randomCols);
+	gameBoard.initializeBoard(levelRows, levelCols);
 
 	bool oPlaying = playing;
 	playing = false;
@@ -228,12 +450,9 @@ void Game::gamePlay()
 		exitText.setFillColor(Color::White);
 		exitText.setPosition(Vector2f{ 115, 405 });
 
-		Texture backgroundTexture;
-		backgroundTexture.loadFromFile("assets\\bg.png");
-		Sprite backgroundSprite(backgroundTexture);
-		backgroundSprite.setPosition(Vector2f{ 0, 0 });
+		backgroundSprite->setPosition(Vector2f{ 0, 0 });
 
-		window->draw(backgroundSprite);
+		window->draw(*backgroundSprite);
 		window->draw(title);
 		window->draw(score);
 		window->draw(moves);
@@ -263,9 +482,9 @@ void Game::gamePlay()
 						bool gemClicked = false;
 						Vector2i selectingGem;
 
-						for (int i = 0; i < randomRows; i++)
+						for (int i = 0; i < levelRows; i++)
 						{
-							for (int j = 0; j < randomCols; j++)
+							for (int j = 0; j < levelCols; j++)
 							{
 								if (gameBoard.getGem(i, j)->getGlobalBounds().contains(Vector2f(pos)))
 								{
@@ -370,9 +589,9 @@ void Game::gamePlay()
 					gemToBomb = false;
 				}
 
-				for (int i = 0; i < randomRows; i++)
+				for (int i = 0; i < levelRows; i++)
 				{
-					for (int j = 0; j < randomCols; j++)
+					for (int j = 0; j < levelCols; j++)
 					{
 						if (gameBoard.getGemType(i, j) != nullptr && gameBoard.getGemType(i, j)->isMarked())
 						{
@@ -550,18 +769,26 @@ void Game::gameWin()
 					if (nextLevelButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton de siguiente nivel presionado" << endl;
-						missionType++;
-						backgroundMusic[musicType].stop();
-						playing = true;
-						levelComplete = false;
-						break;
-					}
-					if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
-					{
-						cout << "Boton Salir presionado" << endl;
-						levelComplete = false;
-						window->close();
-						break;
+						if (currentPlayerNode != nullptr)
+						{
+							player currentData = currentPlayerNode->getData();
+							int newLevelsCompleted = missionType + 1;
+							int newMaxScore = (currentData.getMaxScore() > points) ? currentData.getMaxScore() : points;
+							currentPlayerNode->setData(player(currentPlayerName, newMaxScore, newLevelsCompleted));
+							players.saveToFile(PLAYERS_FILE);
+							missionType++;
+							backgroundMusic[musicType].stop();
+							playing = true;
+							levelComplete = false;
+							break;
+						}
+						if (exitButton.getGlobalBounds().contains(Vector2f(pos)))
+						{
+							cout << "Boton Salir presionado" << endl;
+							levelComplete = false;
+							window->close();
+							break;
+						}
 					}
 				}
 			}
@@ -657,6 +884,16 @@ void Game::endGame()
 					if (restartButton.getGlobalBounds().contains(Vector2f(pos)))
 					{
 						cout << "Boton Reiniciar presionado" << endl;
+						if (currentPlayerNode != nullptr)
+						{
+							player currentData = currentPlayerNode->getData();
+							if (points > currentData.getMaxScore())
+							{
+								currentPlayerNode->setData(player(currentPlayerName, points, currentData.getLevelsCompleted()));
+								players.saveToFile(PLAYERS_FILE);
+								cout << "Nuevo puntaje maximo guardado: " << points << endl;
+							}
+						}
 						backgroundMusic[musicType].stop();
 						playing = true;
 						gameOver = false;

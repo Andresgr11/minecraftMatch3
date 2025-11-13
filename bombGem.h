@@ -1,6 +1,7 @@
 #pragma once
 #include "Gem.h"
 #include "Board.h"
+
 class bombGem : public Gem
 {
 public:
