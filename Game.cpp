@@ -487,7 +487,7 @@ void Game::gamePlay()
 	playing = oPlaying;
 
 	points = 0;
-	movements = 1;
+	movements = 20;
 
 	gameBoard.diamondsCleared = 0;
 	gameBoard.goldCleared = 0;
