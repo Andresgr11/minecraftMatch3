@@ -10,6 +10,7 @@ Game::Game()
 	objetiveCompleted = false;
 	menu = true;
 	levelSelect = false;
+	profileSelected = false;
 	window = new RenderWindow(VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), WINDOW_TITLE);
 	window->setFramerateLimit(FPS);
 
@@ -118,7 +119,6 @@ void Game::gameMenu()
 	players.topPlayers(3, topNames, topScores);
 
 	bool changingProfile = false;
-	bool selectProfile = false;
 
 	Text title(font, "Minecraft Match-3");
 	title.setCharacterSize(40);
@@ -232,7 +232,7 @@ void Game::gameMenu()
 			window->draw(startButton);
 			window->draw(startText);
 		}
-		if (!selectProfile && !changingProfile)
+		if (!profileSelected && !changingProfile)
 		{
 			window->draw(selectProfileText);
 		}
@@ -270,7 +270,7 @@ void Game::gameMenu()
 						currentPlayerNode = players.findOrCreatePlayer(currentPlayerName);
 						welcomeText.setString("Bienvenido, " + currentPlayerName + "!");
 						changingProfile = false;
-						selectProfile = true;
+						profileSelected = true;
 					}
 				}
 			}
@@ -280,7 +280,7 @@ void Game::gameMenu()
 				{
 					if (mouseButtonPressed->button == Mouse::Button::Left)
 					{
-						if (startButton.getGlobalBounds().contains(Vector2f(pos)) && !playerNameInput.empty())
+						if (startButton.getGlobalBounds().contains(Vector2f(pos)) && !currentPlayerName.empty())
 						{
 							cout << "Boton Iniciar presionado" << endl;
 							levelSelect = true;
@@ -300,6 +300,7 @@ void Game::gameMenu()
 							changingProfile = true;
 							playerNameInput = "";
 							nameText.setString(playerNameInput);
+							break;
 						}
 					}
 				}

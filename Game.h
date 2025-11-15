@@ -47,7 +47,8 @@ private:
 	bool gemToBomb;
 	playersList players;
 	node<player>* currentPlayerNode;
-	string currentPlayerName;        
+	string currentPlayerName;    
+	bool profileSelected;
 	const string PLAYERS_FILE = "assets\\players_data.txt";
 public:
 	Game();
